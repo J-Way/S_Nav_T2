@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="S_Nav.Pages.Login.Login">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" /> <!-- Errors-->
+                <RowDefinition Height="80"/> <!-- blank space -->
+                <RowDefinition Height="40" /> <!-- First Line -->
+                <RowDefinition Height="40" />
+                <RowDefinition Height="15" />
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+            </Grid.ColumnDefinitions>
+
+            <Label Text="ERROR - Can't Connect with server, Login unavailable" Grid.Row="0" Grid.Column="0"
+                   Grid.ColumnSpan="4" FontAttributes="Bold" HorizontalOptions="CenterAndExpand"
+                   FontSize="Medium" x:Name="lblErrorText"
+                   TextColor="Red"/>
+            <TableView>
+                <TableRoot>
+                    <TableSection></TableSection>
+                </TableRoot>
+            </TableView>
+
+            <Label Text="Login" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
+                   FontSize="Large" HorizontalOptions="CenterAndExpand" FontAttributes="Bold"
+                   TextDecorations="Underline"/>
+
+            <Label Text="Username" Grid.Row="3" Grid.Column="1" FontSize="Body"/>
+            <Entry Placeholder="Username" Grid.Row="3" Grid.Column="2"/>
+            
+            <Label Text="Password" Grid.Row="5" Grid.Column="1" FontSize="Body"/>
+            <Entry Placeholder="Password" IsPassword="True" Grid.Row="5" Grid.Column="2"/>
+            
+            <Button Text="Login" Grid.Row="7" Grid.Column="1"
+                    Clicked="Login_Clicked" IsEnabled="False"/>
+            <Button Text="Register" Grid.Row="7" Grid.Column="2"
+                    Clicked="Register_Clicked" IsEnabled="False"/>
+            
+            <BoxView HorizontalOptions="FillAndExpand" Grid.Row="8" Grid.ColumnSpan="4"
+                     Color="Black" HeightRequest="2"/>
+            
+            <Button Text="Register Later" Grid.Row="9" Grid.ColumnSpan="4"
+                    HorizontalOptions="CenterAndExpand"
+                    Clicked="RegisterLater_Clicked"/>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
