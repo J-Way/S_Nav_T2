@@ -55,6 +55,7 @@ namespace S_Nav
 
             //Start of second floor rooms
             rooms.Add("E100");
+            rooms.Add("E101");
             rooms.Add("E101A");
             rooms.Add("E101B");
             rooms.Add("E101C");
@@ -87,6 +88,21 @@ namespace S_Nav
             List<MapPoint> points = new List<MapPoint>();
             
             //hallway points
+            points.Add(new MapPoint("hallTopLeft", new SKPoint(width * .345f, height * .24f))); //adjust
+            points.Add(new MapPoint("hallTopMidLeft", new SKPoint(width * .4f, height * .24f))); //added
+            points.Add(new MapPoint("hallMidLeftCenter", new SKPoint(width * .345f, height * .53f)));
+            points.Add(new MapPoint("hallE207Entrance", new SKPoint(width * .345f, height * .60f)));
+            points.Add(new MapPoint("hallMidBottomLeft", new SKPoint(width * .345f, height * .85f))); //added
+            points.Add(new MapPoint("hallMidHalfBottomLeft", new SKPoint(width * .345f, height * .79f))); //added
+            points.Add(new MapPoint("hallBottomLeft", new SKPoint(width * .345f, height * .73f)));
+            points.Add(new MapPoint("hallTopMid", new SKPoint(width * .50f, height * .24f)));
+            points.Add(new MapPoint("hallTopRight", new SKPoint(width * .75f, height * .24f)));
+            points.Add(new MapPoint("hallCurvedStart", new SKPoint(width * .75f, height * .31f)));
+            points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .66f, height * .41f)));
+            points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .53f)));
+
+
+            /*
             points.Add(new MapPoint("hallTopLeft", new SKPoint(width * .37f, height * .30f)));
             points.Add(new MapPoint("hallMidLeftCenter", new SKPoint(width * .37f, height * .53f)));
             points.Add(new MapPoint("hallE207Entrance", new SKPoint(width * .37f, height * .60f)));
@@ -96,8 +112,8 @@ namespace S_Nav
             points.Add(new MapPoint("hallCurvedStart", new SKPoint(width * .73f, height * .36f)));
             points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .68f, height * .43f)));
             points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .53f)));
+            */
 
-            /*
             // floor traversal
             points.Add(new MapPoint("stairsTopLeft", new SKPoint(width * .24f, height * .25f)));//topleft stairs 
             points.Add(new MapPoint("elevatorTopLeft",new SKPoint(width * .21f, height * .25f)));//topleft elevator
@@ -108,7 +124,7 @@ namespace S_Nav
             points.Add(new MapPoint("bathroomGirls",new SKPoint(width * .48f, height * .52f))); //girls bathroom
             points.Add(new MapPoint("bathroomHandicap", new SKPoint(width * .78f, height * .32f)));  //handicap bathroom
             points.Add(new MapPoint("bathroomMen",new SKPoint(width * .6f, height * .50f))); //mens bathroom
-
+            /*
             // E200
             points.Add(new MapPoint("E200", new SKPoint(width * .50f, height * .38f))); //E200 (Center left)
             points.Add(new MapPoint("E200A", new SKPoint(width * .67f, height * .36f))); //E200A
@@ -151,7 +167,30 @@ namespace S_Nav
 
             //Start of first floor points
 
-
+            points.Add(new MapPoint("E100", new SKPoint(width * .71f, height * .32f))); //done
+            points.Add(new MapPoint("E101", new SKPoint(width * .575f, height * .268f))); //done 
+            points.Add(new MapPoint("E101A", new SKPoint(width * .475f, height * .405f))); //done
+            points.Add(new MapPoint("E101B", new SKPoint(width * .37f, height * .39f))); //done
+            points.Add(new MapPoint("E101C", new SKPoint(width * .40f, height * .46f))); //done 
+            points.Add(new MapPoint("E101D", new SKPoint(width * .37f, height * .365f))); //done
+            points.Add(new MapPoint("E102", new SKPoint(width * .455f, height * .51f))); //done
+            points.Add(new MapPoint("E103", new SKPoint(width * .365f, height * .7f))); //done
+            points.Add(new MapPoint("E104", new SKPoint(width * .365f, height * .795f))); //done
+            points.Add(new MapPoint("E105", new SKPoint(width * .365f, height * .89f))); //done
+            points.Add(new MapPoint("E106", new SKPoint(width * .32f, height * .83f))); //done
+            points.Add(new MapPoint("E108", new SKPoint(width * .32f, height * .595f))); //done
+            points.Add(new MapPoint("E108A", new SKPoint(width * .295f, height * .785f))); //done
+            points.Add(new MapPoint("E108B", new SKPoint(width * .275f, height * .785f))); //done
+            points.Add(new MapPoint("E108C", new SKPoint(width * .29f, height * .585f))); //done
+            points.Add(new MapPoint("E108D", new SKPoint(width * .29f, height * .61f))); //done
+            points.Add(new MapPoint("E109", new SKPoint(width * .32f, height * .425f))); //done
+            points.Add(new MapPoint("E110", new SKPoint(width * .32f, height * .385f))); //done
+            points.Add(new MapPoint("E110A", new SKPoint(width * .25f, height * .385f))); //done
+            points.Add(new MapPoint("E110B", new SKPoint(width * .275f, height * .285f))); //done
+            points.Add(new MapPoint("E111", new SKPoint(width * .2f, height * .26f))); //done
+            points.Add(new MapPoint("E113", new SKPoint(width * .51f, height * .4555f))); //done
+            points.Add(new MapPoint("E114", new SKPoint(width * .79f, height * .24f))); //done
+            
             return points;
             
         }
