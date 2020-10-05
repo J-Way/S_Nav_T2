@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -169,26 +169,14 @@ namespace S_Nav
         //
         MapPoint getFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
         {
-            float difX, difY, curX, curY;
-
             foreach (MapPoint p in hallPoints)
             {
                 // get difference
-                difX = p.getPointLocation().X - startX;
-                difY = p.getPointLocation().Y - startY;
+                float difX = Math.Abs(p.getPointLocation().X - startX);
+                float difY = Math.Abs(p.getPointLocation().Y - startY);
 
-                curX = nextPoint.getPointLocation().X - startX;
-                curY = nextPoint.getPointLocation().Y - startY;
-
-                // only want positive values
-                if (difX < 0)
-                    difX *= -1;
-                if (difY < 0)
-                    difY *= -1;
-                if (curX < 0)
-                    curX *= -1;
-                if (curY < 0)
-                    curY *= -1;
+                float curX = Math.Abs(nextPoint.getPointLocation().X - startX);
+                float curY = Math.Abs(nextPoint.getPointLocation().Y - startY);
 
                 // maybe replace with OR
                 //      might have instance where X is closer, Y is farther
@@ -204,27 +192,15 @@ namespace S_Nav
         // not currently accounting for curved halls
         MapPoint getNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
         {
-            float difX, difY, curX, curY;
-
             MapPoint nextPoint = null;
 
             foreach (MapPoint p in hallPoints)
             {
-                difX = p.getPointLocation().X - endPoint.getPointLocation().X;
-                difY = p.getPointLocation().Y - endPoint.getPointLocation().Y;
+                float difX = Math.Abs(p.getPointLocation().X - endPoint.getPointLocation().X);
+                float difY = Math.Abs(p.getPointLocation().Y - endPoint.getPointLocation().Y);
 
-                curX = currentPoint.getPointLocation().X - endPoint.getPointLocation().X;
-                curY = currentPoint.getPointLocation().Y - endPoint.getPointLocation().Y;
-
-                // only want positive values
-                if (difX < 0)
-                    difX *= -1;
-                if (difY < 0)
-                    difY *= -1;
-                if (curX < 0)
-                    curX *= -1;
-                if (curY < 0)
-                    curY *= -1;
+                float curX = Math.Abs(currentPoint.getPointLocation().X - endPoint.getPointLocation().X);
+                float curY = Math.Abs(currentPoint.getPointLocation().Y - endPoint.getPointLocation().Y);
 
                 if (currentPoint.getPointLocation().X == p.getPointLocation().X
                     || currentPoint.getPointLocation().Y == p.getPointLocation().Y)
