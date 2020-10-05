@@ -12,6 +12,9 @@ using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
 using S_Nav.Firebase;
 using System.Runtime.InteropServices;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace S_Nav
 {
@@ -21,7 +24,7 @@ namespace S_Nav
     public partial class NavigationPageDetail : ContentPage
     {
         FirebaseConnection firebaseConnection = new FirebaseConnection();
-
+        HttpClient httpClient = new HttpClient();
         String currentLocation, destinationLocation;
 
         // temporary route colour
@@ -53,9 +56,8 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
-        // image being loaded
         SKBitmap image;
-        
+
         // creates detail page
         // dont touch this
         public NavigationPageDetail()
@@ -68,7 +70,7 @@ namespace S_Nav
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
-        private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        private async void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
@@ -78,9 +80,17 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            setFloorPlan(width, height);
+            image = await SetFloorPlan(width,height,canvas);
 
-            canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            try
+            {
+                canvas.DrawBitmap(image, 0, 0);
+                //canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            }
+            catch(Exception ex)
+            {
+                throw (ex);
+            }
 
             canvas.Save(); // unnecessary at this moment, but leave in
 
@@ -102,21 +112,43 @@ namespace S_Nav
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(int width, int height)
+        private async Task<SKBitmap> SetFloorPlan(int width, int height, SKCanvas canvas)
         {
             //
             var placeholderInput = "TRAE2";
             // might need to make this function async if given await error
-            Uri image_uri = firebaseConnection.GetImage(placeholderInput);
+            Uri image_uri = await firebaseConnection.GetImage(placeholderInput);
+
+            string url = image_uri.ToString();
+            try
+            {
+                SKBitmap image2;
+
+                using (Stream stream = await httpClient.GetStreamAsync(url))
+                using (MemoryStream memStream = new MemoryStream())
+                {
+                    await stream.CopyToAsync(memStream);
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    image = SKBitmap.Decode(memStream);
+
+                    return image;
+                };
+            }
+            catch
+            {
+            }
+
+            return null;
             //
 
 
             // Bitmap
-            Assembly assembly = GetType().GetTypeInfo().Assembly;
-            using (Stream stream = assembly.GetManifestResourceStream(image_uri.ToString()))
-            {
-                image = SKBitmap.Decode(stream);
-            }
+            //Assembly assembly = GetType().GetTypeInfo().Assembly;
+            //using (Stream stream = assembly.GetManifestResourceStream(image_uri.ToString()))
+            //{
+            //    image = SKBitmap.Decode(stream);
+            //}
         }
 
         private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)

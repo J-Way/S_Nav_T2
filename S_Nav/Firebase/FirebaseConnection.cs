@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Firebase.Database;
+using System.Threading.Tasks;
+using Firebase.Storage;
+using Firebase.Auth;
 
 /*
  * FirebaseAuthentication.net
@@ -15,19 +17,23 @@ namespace S_Nav.Firebase
     class FirebaseConnection
     {
         // Test this out as a URI as well
-        string firebaseLink = "https://fir-nav-fbd51.firebaseio.com/";
+        static string dbLink = "https://fir-nav-fbd51.firebaseio.com/";
+        static string fileLink = "fir-nav-fbd51.appspot.com";
+
+        static FirebaseOptions dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = () => AnonLogin() };
+        static FirebaseStorageOptions fileOptions = new FirebaseStorageOptions { AuthTokenAsyncFactory = () => AnonLogin() };
 
 
-        FirebaseClient firebase = new FirebaseClient(firebaseLink, new FirebaseOptions { AuthTokenAsyncFactory = () => AnonLogin() });
+        FirebaseClient firebaseDB = new FirebaseClient(dbLink, dbOptions);
+        FirebaseStorage firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
+
 
         public async Task<Uri> GetImage(string floor)
         {
             // unless we start changing the data names / structures we can skip this
             //var query = await firebase.Child("FLOOR_DATA/"+floor).OnceAsync<object>();
-
-            Uri image = new Uri(await new FirebaseStorage(firebaseLink).Child("Images").Child(floor + ".jpg").GetDownloadUrlAsync());
-
-            // this could be shortened to a one line function, but leave as is for now
+            
+            Uri image = new Uri(await firebaseFiles.Child("Images").Child(floor + ".jpg").GetDownloadUrlAsync());
             return image;
         }
 
