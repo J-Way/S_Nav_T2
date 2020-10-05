@@ -10,6 +10,8 @@ using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
+using S_Nav.Firebase;
+using System.Runtime.InteropServices;
 
 namespace S_Nav
 {
@@ -18,6 +20,8 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
+        FirebaseConnection firebaseConnection = new FirebaseConnection();
+
         String currentLocation, destinationLocation;
 
         // temporary route colour
@@ -100,10 +104,16 @@ namespace S_Nav
         // (currently the same static image)
         private void setFloorPlan(int width, int height)
         {
+            //
+            var placeholderInput = "TRAE2";
+            // might need to make this function async if given await error
+            Uri image_uri = firebaseConnection.GetImage(placeholderInput);
+            //
+
+
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            String resourceID = "S_Nav.TRAE2.jpg";
-            using (Stream stream = assembly.GetManifestResourceStream(resourceID))
+            using (Stream stream = assembly.GetManifestResourceStream(image_uri.ToString()))
             {
                 image = SKBitmap.Decode(stream);
             }
