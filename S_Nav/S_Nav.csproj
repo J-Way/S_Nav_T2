@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TRAE1.jpg" />
     <None Remove="TRAE2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="TRAE1.jpg" />
     <EmbeddedResource Include="TRAE2.jpg" />
   </ItemGroup>
 

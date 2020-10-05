@@ -12,7 +12,7 @@ namespace S_Nav
         public List<String> loadRoomNames()
         {
             List<String> rooms = new List<string>();
-
+            /*
             // E200
             rooms.Add("E200"); //E200 (Center left)
             rooms.Add("E200A"); //E200A
@@ -51,6 +51,32 @@ namespace S_Nav
             rooms.Add("E210"); //E210
             rooms.Add("E211"); //E211
             rooms.Add("E212"); //E212
+            */
+
+            //Start of second floor rooms
+            rooms.Add("E100");
+            rooms.Add("E101A");
+            rooms.Add("E101B");
+            rooms.Add("E101C");
+            rooms.Add("E101D");
+            rooms.Add("E102");
+            rooms.Add("E103");
+            rooms.Add("E104");
+            rooms.Add("E105");
+            rooms.Add("E106");
+            rooms.Add("E108");
+            rooms.Add("E108A");
+            rooms.Add("E108B");
+            rooms.Add("E108C");
+            rooms.Add("E108D");
+            rooms.Add("E109");
+            rooms.Add("E110");
+            rooms.Add("E110A");
+            rooms.Add("E110B");
+            rooms.Add("E111");
+            rooms.Add("E113");
+            rooms.Add("E114");//22 rooms
+
 
             return rooms;
         }
@@ -71,7 +97,7 @@ namespace S_Nav
             points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .68f, height * .43f)));
             points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .53f)));
 
-            
+            /*
             // floor traversal
             points.Add(new MapPoint("stairsTopLeft", new SKPoint(width * .24f, height * .25f)));//topleft stairs 
             points.Add(new MapPoint("elevatorTopLeft",new SKPoint(width * .21f, height * .25f)));//topleft elevator
@@ -121,7 +147,11 @@ namespace S_Nav
             points.Add(new MapPoint("E210", new SKPoint(width * .385f, height * .42f))); //E210
             points.Add(new MapPoint("E211", new SKPoint(width * .385f, height * .50f))); //E211
             points.Add(new MapPoint("E212", new SKPoint(width * .42f, height * .52f))); //E212
-            
+            */
+
+            //Start of first floor points
+
+
             return points;
             
         }
