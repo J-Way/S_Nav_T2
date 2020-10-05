@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.ComponentModel;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
-
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
 using S_Nav.Firebase;
-using System.Runtime.InteropServices;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Net;
 
 namespace S_Nav
 {
@@ -80,31 +76,27 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            image = await SetFloorPlan(width,height,canvas);
+            //image = await SetFloorPlan(width,height,canvas);
+            //    //canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
-            try
-            {
-                canvas.DrawBitmap(image, 0, 0);
-                //canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
-            }
-            catch(Exception ex)
-            {
-                throw (ex);
-            }
+            canvas.Save();
 
-            canvas.Save(); // unnecessary at this moment, but leave in
-
-            
             // Calls routing
             if (currentLocation != null)
             {
+                List<MapPoint> points = await firebaseConnection.GetFloorPoints("TRAE2", width, height);
                 LoadPoints pointLoader = new LoadPoints();
-                List<MapPoint> points = pointLoader.loadPoints(width, height);
+                List<MapPoint> points2 = pointLoader.loadPoints(width, height);
 
-                points = calculateRoute(points);
-                drawRoute(points, canvas);
+                
 
-                canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+                foreach (var point in points)
+                {
+                    SKPoint t = point.getPointLocation();
+                    t.X = (int)t.X;
+                    t.Y = (int)t.Y;
+                    canvas.DrawPoint(t, redStroke);
+                }
             }
             
         }
@@ -122,8 +114,6 @@ namespace S_Nav
             string url = image_uri.ToString();
             try
             {
-                SKBitmap image2;
-
                 using (Stream stream = await httpClient.GetStreamAsync(url))
                 using (MemoryStream memStream = new MemoryStream())
                 {

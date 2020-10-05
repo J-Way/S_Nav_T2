@@ -3,6 +3,13 @@ using Firebase.Database;
 using System.Threading.Tasks;
 using Firebase.Storage;
 using Firebase.Auth;
+using System.Collections.Generic;
+using System.Net;
+using Firebase.Database.Query;
+using Newtonsoft.Json;
+using System.Collections.Specialized;
+using Newtonsoft.Json.Linq;
+using Xamarin.Essentials;
 
 /*
  * FirebaseAuthentication.net
@@ -35,6 +42,36 @@ namespace S_Nav.Firebase
             
             Uri image = new Uri(await firebaseFiles.Child("Images").Child(floor + ".jpg").GetDownloadUrlAsync());
             return image;
+        }
+
+        // could merge into one function with GetImage later
+        public async Task<List<MapPoint>> GetFloorPoints(string floor, int width, int height)
+        {
+            List<MapPoint> mapPoints = new List<MapPoint>();
+
+            // switch to map point list after figuring out point name issue
+            var items = await (firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>());
+            foreach (var item in items)
+            {
+                foreach (var curPoint in item.Object)
+                {
+                    var test = JObject.Parse(curPoint.ToString()).GetEnumerator();
+                    
+                    // This is a horrible implementation and should be replaced
+                    test.MoveNext();
+                    var name = test.Current.Value.ToString();
+
+                    test.MoveNext();
+                    var x = float.Parse(test.Current.Value.ToString());
+
+                    test.MoveNext();
+                    var y = float.Parse(test.Current.Value.ToString());
+
+                    mapPoints.Add(new MapPoint(name, width * x, height * y));
+                }
+            }
+
+            return mapPoints;
         }
 
         public static async Task<string> AnonLogin()
