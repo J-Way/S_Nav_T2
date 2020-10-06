@@ -130,8 +130,7 @@ namespace S_Nav
             {
                 // set the first map point
                 MapPoint firstHallPoint = new MapPoint(new SKPoint(0, 0));
-                firstHallPoint = getFirstHallPoint(firstHallPoint, routePoints[0].getPointLocation().X,
-                                 routePoints[0].getPointLocation().Y, hallPoints);
+                firstHallPoint = getFirstHallPoint(firstHallPoint, routePoints[0], hallPoints);
 
                 routePoints.Add(firstHallPoint);
                 
@@ -167,20 +166,16 @@ namespace S_Nav
         // 
         // Finds the hall point closest to start point
         //
-        MapPoint getFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
+        MapPoint getFirstHallPoint(MapPoint nextPoint, MapPoint startPoint, List<MapPoint> hallPoints)
         {
+            SKPoint start = startPoint.getPointLocation();
+
             foreach (MapPoint p in hallPoints)
             {
-                // get difference
-                float difX = Math.Abs(p.getPointLocation().X - startX);
-                float difY = Math.Abs(p.getPointLocation().Y - startY);
+                float dif = SKPoint.Distance(p.getPointLocation(), start);
+                float cur = SKPoint.Distance(nextPoint.getPointLocation(), start);
 
-                float curX = Math.Abs(nextPoint.getPointLocation().X - startX);
-                float curY = Math.Abs(nextPoint.getPointLocation().Y - startY);
-
-                // maybe replace with OR
-                //      might have instance where X is closer, Y is farther
-                if (difX <= curX && difY <= curY)
+                if (dif <= cur)
                 {
                     nextPoint = p;
                 }
@@ -193,25 +188,17 @@ namespace S_Nav
         MapPoint getNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
         {
             MapPoint nextPoint = null;
+            SKPoint end = endPoint.getPointLocation();
 
             foreach (MapPoint p in hallPoints)
             {
-                float difX = Math.Abs(p.getPointLocation().X - endPoint.getPointLocation().X);
-                float difY = Math.Abs(p.getPointLocation().Y - endPoint.getPointLocation().Y);
-
-                float curX = Math.Abs(currentPoint.getPointLocation().X - endPoint.getPointLocation().X);
-                float curY = Math.Abs(currentPoint.getPointLocation().Y - endPoint.getPointLocation().Y);
+                float dif = SKPoint.Distance(p.getPointLocation(), end);
+                float cur = SKPoint.Distance(currentPoint.getPointLocation(), end);
 
                 if (currentPoint.getPointLocation().X == p.getPointLocation().X
                     || currentPoint.getPointLocation().Y == p.getPointLocation().Y)
                 {
-                    if (difX < curX || difY < curY)
-                    {
-                        nextPoint = p;
-                        hallPoints.Remove(p);
-                        return nextPoint;
-                    }
-                    else if (difX == curX && difY == curY)
+                    if (dif <= cur)
                     {
                         nextPoint = p;
                         hallPoints.Remove(p);
