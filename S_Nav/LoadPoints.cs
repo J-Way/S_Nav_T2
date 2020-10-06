@@ -103,8 +103,8 @@ namespace S_Nav
             points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .67f, height * .39f))); //adjusted
             points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .485f))); //adjusted
 
-            points.Add(new MapPoint("hallE108UpperInside", new SKPoint(width * .22f, height * .595f))); //added and removed for now
-            points.Add(new MapPoint("hallE108LowerInside", new SKPoint(width * .22f, height * .695f))); //added and removed for now
+            points.Add(new MapPoint("hallE108UpperInside", new SKPoint(width * .22f, height * .595f))); //added, not really functional
+            points.Add(new MapPoint("hallE108LowerInside", new SKPoint(width * .22f, height * .695f))); //added, not really functional
 
             /* ORIGINAL HALL POINTS FOR SECOND FLOOR
             points.Add(new MapPoint("hallTopLeft", new SKPoint(width * .37f, height * .30f)));
