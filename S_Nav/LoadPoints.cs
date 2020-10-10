@@ -95,6 +95,10 @@ namespace S_Nav
             points.Add(new MapPoint("hallMidLeftUpper", new SKPoint(width * .345f, height * .35f))); //added and adjusted
             points.Add(new MapPoint("hallMidLeftCenter", new SKPoint(width * .345f, height * .485f))); //adjusted
             points.Add(new MapPoint("hallE207Entrance", new SKPoint(width * .345f, height * .60f))); //adjusted
+
+            points.Add(new MapPoint("hallE110Inside", new SKPoint(width * .295f, height * .32f))); //added, not functional
+            points.Add(new MapPoint("hallE110Door", new SKPoint(width * .31f, height * .385f))); //added, not functional
+
             points.Add(new MapPoint("hallMidBottomLeft", new SKPoint(width * .345f, height * .85f))); //added and adjusted
             points.Add(new MapPoint("hallMidHalfBottomLeft", new SKPoint(width * .345f, height * .79f))); //added and adjusted
             points.Add(new MapPoint("hallBottomLeft", new SKPoint(width * .345f, height * .73f))); //adjusted
