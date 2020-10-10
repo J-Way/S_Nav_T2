@@ -1,4 +1,5 @@
-﻿using System;
+﻿using S_Nav.Firebase;
+using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -9,6 +10,13 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
+
+        // Check viability in having a "loading" page to handle this query
+        // allows removing this activity from memory if needed 
+        // (only if garbage collection starts removing again)
+        FirebaseConnection firebaseConnection = new FirebaseConnection();
+        List<MapPoint> points;
+
         public SearchRoomDetail()
         {
             InitializeComponent();
@@ -33,7 +41,7 @@ namespace S_Nav.Pages.NavPage.Searches
             }
         }
 
-        private void SearchRoute_Clicked(object sender, EventArgs e)
+        private async void SearchRoute_Clicked(object sender, EventArgs e)
         {
             if(curLocPicker.SelectedItem == null || destLocPicker.SelectedItem == null)
             {
@@ -49,9 +57,11 @@ namespace S_Nav.Pages.NavPage.Searches
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);
 
-                var routePage = new NavigationPage();
+                points = await firebaseConnection.GetFloorPoints("TRAE2");
 
-                Navigation.PushModalAsync(routePage);
+                NavigationPage routePage = new NavigationPage(points);
+
+                await Navigation.PushModalAsync(routePage);
             }
         }
     }

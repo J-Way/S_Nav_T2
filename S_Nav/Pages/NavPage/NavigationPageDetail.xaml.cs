@@ -11,6 +11,7 @@ using Xamarin.Essentials;
 using S_Nav.Firebase;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace S_Nav
 {
@@ -21,7 +22,8 @@ namespace S_Nav
     {
         FirebaseConnection firebaseConnection = new FirebaseConnection();
         HttpClient httpClient = new HttpClient();
-        String currentLocation, destinationLocation;
+        string currentLocation, destinationLocation;
+        List<MapPoint> points;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -54,20 +56,33 @@ namespace S_Nav
 
         SKBitmap image;
 
+        public NavigationPageDetail()
+        {
+            InitializeComponent();
+        }
+
         // creates detail page
         // dont touch this
-        public NavigationPageDetail()
+        public NavigationPageDetail(List<MapPoint> p)
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
+
+            points = p;
         }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
-        private async void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
+            if (points.Count < 1)
+            {
+                return;
+            }
+
+
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -84,18 +99,15 @@ namespace S_Nav
             // Calls routing
             if (currentLocation != null)
             {
-                List<MapPoint> points = await firebaseConnection.GetFloorPoints("TRAE2", width, height);
-                LoadPoints pointLoader = new LoadPoints();
-                List<MapPoint> points2 = pointLoader.loadPoints(width, height);
+                //List<MapPoint> points = await firebaseConnection.GetFloorPoints("TRAE2", width, height);
+                //LoadPoints pointLoader = new LoadPoints();
+                //List<MapPoint> points2 = pointLoader.loadPoints(width, height);
 
                 
 
                 foreach (var point in points)
                 {
-                    SKPoint t = point.getPointLocation();
-                    t.X = (int)t.X;
-                    t.Y = (int)t.Y;
-                    canvas.DrawPoint(t, redStroke);
+                    canvas.DrawPoint(new SKPoint(point.getPointX(width), point.getPointY(height)), redStroke);
                 }
             }
             
@@ -161,7 +173,7 @@ namespace S_Nav
             if (currentLocation.Length <= 4 || destinationLocation.Length <= 4)
             {
                 // set the first map point
-                MapPoint firstHallPoint = new MapPoint(new SKPoint(0, 0));
+                MapPoint firstHallPoint = new MapPoint(new Vector2(0, 0));
                 firstHallPoint = getFirstHallPoint(firstHallPoint, routePoints[0].getPointLocation().X,
                                  routePoints[0].getPointLocation().Y, hallPoints);
 
@@ -283,19 +295,19 @@ namespace S_Nav
         //
         // Takes a list of points and  draws lines between them
         //
-        private void drawRoute(List<MapPoint> points, SKCanvas canvas)
-        {
-            for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
-            {
-                if (i == 0)
-                {
-                    canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
-                }
-                else if (i < points.Count - 1) {
-                    canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
-                }
-                canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
-            }
-        }
+        //private void drawRoute(List<MapPoint> points, SKCanvas canvas)
+        //{
+        //    for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
+        //    {
+        //        if (i == 0)
+        //        {
+        //            canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
+        //        }
+        //        else if (i < points.Count - 1) {
+        //            canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
+        //        }
+        //        canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
+        //    }
+        //}
     }
 }

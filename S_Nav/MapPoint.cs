@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using SkiaSharp;
 
 namespace S_Nav
 {
-    class MapPoint
+    public class MapPoint
     {
         private string point_name { get; set; }
         private string pointDescription { get; set; }
 
-        private SKPoint pointLocation { get; set; }
+        private Vector2 pointLocation { get; set; }
 
         public string getPointName()
         {
@@ -22,13 +23,13 @@ namespace S_Nav
             this.point_name = name;
         }
 
-        public MapPoint(String pName, SKPoint pLocation)
+        public MapPoint(String pName, Vector2 pLocation)
         {
             this.point_name = pName;
             this.pointLocation = pLocation;
         }
 
-        public MapPoint(SKPoint pLocation)
+        public MapPoint(Vector2 pLocation)
         {
             this.pointLocation = pLocation;
         }
@@ -36,16 +37,36 @@ namespace S_Nav
         public MapPoint(String pName, float x, float y)
         {
             this.point_name = pName;
-            this.pointLocation = new SKPoint(x, y);
+            this.pointLocation = new Vector2(x, y);
         }
 
         public MapPoint()
         {
         }
 
-        public SKPoint getPointLocation()
+        public Vector2 getPointLocation()
         {
             return this.pointLocation;
+        }
+
+
+        public int getPointX(float width)
+        {
+            return (int) (this.pointLocation.X * width);
+        }
+        public int getPointY(float height)
+        {
+            return (int) (this.pointLocation.Y * height);
+        }
+
+        public void setPointY(float y)
+        {
+            this.pointLocation = new Vector2(this.pointLocation.X, y);
+        }
+
+        public void setPointX(float x)
+        {
+            this.pointLocation =new Vector2(x, this.pointLocation.Y);
         }
     }
 }

@@ -74,6 +74,36 @@ namespace S_Nav.Firebase
             return mapPoints;
         }
 
+        public async Task<List<MapPoint>> GetFloorPoints(string floor)
+        {
+            List<MapPoint> mapPoints = new List<MapPoint>();
+
+            // switch to map point list after figuring out point name issue
+            var items = await (firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>());
+            foreach (var item in items)
+            {
+                foreach (var curPoint in item.Object)
+                {
+                    var test = JObject.Parse(curPoint.ToString()).GetEnumerator();
+
+                    // This is a horrible implementation and should be replaced
+                    test.MoveNext();
+                    var name = test.Current.Value.ToString();
+
+                    test.MoveNext();
+                    var x = float.Parse(test.Current.Value.ToString());
+
+                    test.MoveNext();
+                    var y = float.Parse(test.Current.Value.ToString());
+
+                    //mapPoints.Add(new MapPoint(name, width * x, height * y));
+                    mapPoints.Add(new MapPoint(name, x, y));
+                }
+            }
+
+            return mapPoints;
+        }
+
         public static async Task<string> AnonLogin()
         {
             var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyDlrs12gBooCtCtg6SXVG2xP3BE-jYXk7g"));
