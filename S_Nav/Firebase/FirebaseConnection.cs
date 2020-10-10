@@ -4,12 +4,8 @@ using System.Threading.Tasks;
 using Firebase.Storage;
 using Firebase.Auth;
 using System.Collections.Generic;
-using System.Net;
 using Firebase.Database.Query;
-using Newtonsoft.Json;
-using System.Collections.Specialized;
 using Newtonsoft.Json.Linq;
-using Xamarin.Essentials;
 
 /*
  * FirebaseAuthentication.net
