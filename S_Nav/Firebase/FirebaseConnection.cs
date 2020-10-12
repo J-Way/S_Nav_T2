@@ -7,14 +7,6 @@ using System.Collections.Generic;
 using Firebase.Database.Query;
 using Newtonsoft.Json.Linq;
 
-/*
- * FirebaseAuthentication.net
- * FirebaseDatabase.net
- * FirebaseStorage.net
- * 
- * Newtonsoft.Json // Questionable if needed
- * */
-
 namespace S_Nav.Firebase
 {
     class FirebaseConnection

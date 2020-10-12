@@ -16,6 +16,7 @@ namespace S_Nav.Pages.NavPage.Searches
         // (only if garbage collection starts removing again)
         FirebaseConnection firebaseConnection = new FirebaseConnection();
         List<MapPoint> points;
+        Uri imageUri;
 
         public SearchRoomDetail()
         {
@@ -23,22 +24,18 @@ namespace S_Nav.Pages.NavPage.Searches
 
             populatePicker(curLocPicker);
             populatePicker(destLocPicker);
-
-            curLocPicker.SelectedItem = curLocPicker.Items[0];
-            destLocPicker.SelectedItem = curLocPicker.Items[1];
         }
 
-        void populatePicker(Picker picker)
+        async void populatePicker(Picker picker)
         {
-            // will definitely want to access these in a better way
-            List<String> pointNames = new List<string>();
-            LoadPoints lp = new LoadPoints();
-            pointNames = lp.loadRoomNames();
+            points = await firebaseConnection.GetFloorPoints("TRAE2");
 
-            foreach (String name in pointNames)
+            foreach (var p in points)
             {
-                picker.Items.Add(name);
+                picker.Items.Add(p.getPointName());
             }
+
+            picker.SelectedItem = picker.Items[0];
         }
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
@@ -57,9 +54,9 @@ namespace S_Nav.Pages.NavPage.Searches
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);
 
-                points = await firebaseConnection.GetFloorPoints("TRAE2");
+                imageUri = await firebaseConnection.GetImage("TRAE2");
 
-                NavigationPage routePage = new NavigationPage(points);
+                NavigationPage routePage = new NavigationPage(points, imageUri);
 
                 await Navigation.PushModalAsync(routePage);
             }
