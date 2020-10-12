@@ -20,11 +20,11 @@ namespace S_Nav
             Detail = new NavigationPageDetail();
         }
 
-        public NavigationPage(List<MapPoint> points)
+        public NavigationPage(List<MapPoint> points, string floorFile)
         {
             InitializeComponent();
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail(points);
+            Detail = new NavigationPageDetail(points, floorFile);
         }
 
 

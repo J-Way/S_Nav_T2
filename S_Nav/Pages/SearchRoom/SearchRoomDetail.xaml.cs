@@ -10,13 +10,13 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
-
-        // Check viability in having a "loading" page to handle this query
-        // allows removing this activity from memory if needed 
-        // (only if garbage collection starts removing again)
+        // 
+        // Will likely need to move data loading to a prior blank activity to avoid user holdups
+        //
         FirebaseConnection firebaseConnection = new FirebaseConnection();
         List<MapPoint> points;
         Uri imageUri;
+        string floorFile;
 
         public SearchRoomDetail()
         {
@@ -54,9 +54,9 @@ namespace S_Nav.Pages.NavPage.Searches
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);
 
-                imageUri = await firebaseConnection.GetImage("TRAE2");
+                floorFile = "TRA-E-2.png";
 
-                NavigationPage routePage = new NavigationPage(points, imageUri);
+                NavigationPage routePage = new NavigationPage(points, floorFile);
 
                 await Navigation.PushModalAsync(routePage);
             }

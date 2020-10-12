@@ -12,6 +12,7 @@ using S_Nav.Firebase;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Reflection;
 
 namespace S_Nav
 {
@@ -20,10 +21,9 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
-        FirebaseConnection firebaseConnection = new FirebaseConnection();
-        HttpClient httpClient = new HttpClient();
-        string currentLocation, destinationLocation;
+        string currentLocation, destinationLocation, floorFile;
         List<MapPoint> points;
+        SKBitmap image;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -54,8 +54,6 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
-        SKBitmap image;
-
         public NavigationPageDetail()
         {
             InitializeComponent();
@@ -63,13 +61,14 @@ namespace S_Nav
 
         // creates detail page
         // dont touch this
-        public NavigationPageDetail(List<MapPoint> p)
+        public NavigationPageDetail(List<MapPoint> p, string file)
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
 
             points = p;
+            floorFile = file;
         }
 
         ///     handles / calls all the drawing
@@ -91,20 +90,15 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            //image = await SetFloorPlan(width,height,canvas);
-            //    //canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            setFloorPlan(floorFile);
+            canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             canvas.Save();
 
             // Calls routing
             if (currentLocation != null)
-            {
-                //List<MapPoint> points = await firebaseConnection.GetFloorPoints("TRAE2", width, height);
-                //LoadPoints pointLoader = new LoadPoints();
-                //List<MapPoint> points2 = pointLoader.loadPoints(width, height);
-
-                
-
+            {                
+                // only used here in testing, replace when merging
                 foreach (var point in points)
                 {
                     canvas.DrawPoint(new SKPoint(point.getPointX(width), point.getPointY(height)), redStroke);
@@ -116,41 +110,17 @@ namespace S_Nav
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private async Task<SKBitmap> SetFloorPlan(int width, int height, SKCanvas canvas)
+        // try to call only when loading new floor
+        // (currently the same static image)
+        private void setFloorPlan(string file)
         {
-            //
-            var placeholderInput = "TRAE2";
-            // might need to make this function async if given await error
-            Uri image_uri = await firebaseConnection.GetImage(placeholderInput);
-
-            string url = image_uri.ToString();
-            try
-            {
-                using (Stream stream = await httpClient.GetStreamAsync(url))
-                using (MemoryStream memStream = new MemoryStream())
-                {
-                    await stream.CopyToAsync(memStream);
-                    memStream.Seek(0, SeekOrigin.Begin);
-
-                    image = SKBitmap.Decode(memStream);
-
-                    return image;
-                };
-            }
-            catch
-            {
-            }
-
-            return null;
-            //
-
-
             // Bitmap
-            //Assembly assembly = GetType().GetTypeInfo().Assembly;
-            //using (Stream stream = assembly.GetManifestResourceStream(image_uri.ToString()))
-            //{
-            //    image = SKBitmap.Decode(stream);
-            //}
+            Assembly assembly = GetType().GetTypeInfo().Assembly;
+            String resourceId = "S_Nav.Media.Images." + file;
+            using (Stream stream = assembly.GetManifestResourceStream(resourceId))
+            {
+                image = SKBitmap.Decode(stream);
+            }
         }
 
         private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)
