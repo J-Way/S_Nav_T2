@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.ComponentModel;
+using S_Nav.Navigation;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 
@@ -18,7 +19,7 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
-        String currentLocation, destinationLocation;
+        String currentLocation;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -58,7 +59,6 @@ namespace S_Nav
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
-            destinationLocation = Preferences.Get("destLoc", null);
         }
 
         ///     handles / calls all the drawing
@@ -80,21 +80,19 @@ namespace S_Nav
 
             canvas.Save(); // unnecessary at this moment, but leave in
 
-            
             // Calls routing
             if (currentLocation != null)
             {
                 LoadPoints pointLoader = new LoadPoints();
                 List<MapPoint> points = pointLoader.loadPoints(width, height);
 
-                points = calculateRoute(points);
+                Route route = new Route(points);
+                points = route.calculateRoute(); // convert all given points to calculated route
                 drawRoute(points, canvas);
 
                 canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
             }
-            
         }
-
 
         // try to call only when loading new floor
         // (currently the same static image)
@@ -107,121 +105,6 @@ namespace S_Nav
             {
                 image = SKBitmap.Decode(stream);
             }
-        }
-
-        private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)
-        {
-            List<MapPoint> routePoints = new List<MapPoint>();
-            routePoints.Add(givenPoints.Find(i => i.getPointName() == currentLocation));
-            MapPoint endPoint = givenPoints.Find(i => i.getPointName() == destinationLocation);
-            // since we navigate by hall points, find all of them
-            List<MapPoint> hallPoints = new List<MapPoint>();
-            foreach(MapPoint p in givenPoints)
-            {
-                if (p.getPointName().Contains("hall"))
-                {
-                    hallPoints.Add(p);
-                }
-            }
-
-            bool findMasterRoom = true;
-
-            if (currentLocation.Length <= 4 || destinationLocation.Length <= 4)
-            {
-                // set the first map point
-                MapPoint firstHallPoint = new MapPoint(new SKPoint(0, 0));
-                firstHallPoint = getFirstHallPoint(firstHallPoint, routePoints[0].getPointLocation().X,
-                                 routePoints[0].getPointLocation().Y, hallPoints);
-
-                routePoints.Add(firstHallPoint);
-                
-                while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
-                {
-                    // handle navigating to rooms which contain multiple subrooms
-                    if (findMasterRoom && endPoint.getPointName().Length > 4)
-                    {
-                        MapPoint masterRoom = givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4));
-                        while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
-                        {
-                            routePoints.Add(getNextPoint(routePoints[routePoints.Count - 1], masterRoom, hallPoints));
-                        }
-                        routePoints.Add(masterRoom);
-                    }
-                    else
-                    {
-                        findMasterRoom = false;
-                    }
-                    routePoints.Add(getNextPoint(routePoints[routePoints.Count - 1], endPoint, hallPoints));
-                }
-            }
-            
-            else
-            {
-                routePoints.Add(givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4)));
-            }
-            routePoints.Add(endPoint);
-            
-            return routePoints;
-        }
-
-        // 
-        // Finds the hall point closest to start point
-        //
-        MapPoint getFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
-        {
-            foreach (MapPoint p in hallPoints)
-            {
-                // get difference
-                float difX = Math.Abs(p.getPointLocation().X - startX);
-                float difY = Math.Abs(p.getPointLocation().Y - startY);
-
-                float curX = Math.Abs(nextPoint.getPointLocation().X - startX);
-                float curY = Math.Abs(nextPoint.getPointLocation().Y - startY);
-
-                // maybe replace with OR
-                //      might have instance where X is closer, Y is farther
-                if (difX <= curX && difY <= curY)
-                {
-                    nextPoint = p;
-                }
-            }
-            hallPoints.Remove(nextPoint);
-            return nextPoint;
-        }
-
-        // not currently accounting for curved halls
-        MapPoint getNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
-        {
-            MapPoint nextPoint = null;
-
-            foreach (MapPoint p in hallPoints)
-            {
-                float difX = Math.Abs(p.getPointLocation().X - endPoint.getPointLocation().X);
-                float difY = Math.Abs(p.getPointLocation().Y - endPoint.getPointLocation().Y);
-
-                float curX = Math.Abs(currentPoint.getPointLocation().X - endPoint.getPointLocation().X);
-                float curY = Math.Abs(currentPoint.getPointLocation().Y - endPoint.getPointLocation().Y);
-
-                if (currentPoint.getPointLocation().X == p.getPointLocation().X
-                    || currentPoint.getPointLocation().Y == p.getPointLocation().Y)
-                {
-                    if (difX < curX || difY < curY)
-                    {
-                        nextPoint = p;
-                        hallPoints.Remove(p);
-                        return nextPoint;
-                    }
-                    else if (difX == curX && difY == curY)
-                    {
-                        nextPoint = p;
-                        hallPoints.Remove(p);
-                        return nextPoint;
-                    }
-                }
-            }
-
-            // failsafe return
-            return currentPoint;
         }
 
         //
