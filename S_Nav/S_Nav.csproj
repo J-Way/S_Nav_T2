@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -14,7 +14,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Media\Images\TRA-E-1.png" />
     <EmbeddedResource Include="Media\Images\TRA-E-2.png" />
-    <EmbeddedResource Include="TRA-E-2.png" />
   </ItemGroup>
 
   <ItemGroup>

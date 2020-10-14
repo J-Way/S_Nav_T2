@@ -9,10 +9,6 @@ using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
-using S_Nav.Firebase;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Numerics;
 using System.Reflection;
 
 namespace S_Nav
@@ -94,14 +90,11 @@ namespace S_Nav
             // Calls routing
             if (currentLocation != null)
             {
-                LoadPoints pointLoader = new LoadPoints();
-                List<MapPoint> points = pointLoader.loadPoints(width, height);
-
                 Route route = new Route(points);
                 points = route.calculateRoute(); // convert all given points to calculated route
                 drawRoute(points, canvas);
 
-                canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+                canvas.DrawPoint(points[points.Count - 1].getPointLocation(), redStroke);
             }
         }
 
@@ -123,19 +116,19 @@ namespace S_Nav
         //
         // Takes a list of points and  draws lines between them
         //
-        //private void drawRoute(List<MapPoint> points, SKCanvas canvas)
-        //{
-        //    for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
-        //    {
-        //        if (i == 0)
-        //        {
-        //            canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
-        //        }
-        //        else if (i < points.Count - 1) {
-        //            canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
-        //        }
-        //        canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
-        //    }
-        //}
+        private void drawRoute(List<MapPoint> points, SKCanvas canvas)
+        {
+            for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
+            {
+                if (i == 0)
+                {
+                    canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
+                }
+                else if (i < points.Count - 1) {
+                    canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
+                }
+                canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
+            }
+        }
     }
 }
