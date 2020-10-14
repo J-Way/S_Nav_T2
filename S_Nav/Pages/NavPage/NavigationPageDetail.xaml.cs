@@ -18,8 +18,11 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
+        SKBitmap image;
 
         String currentLocation;
+        List<MapPoint> points;
+        string floorFile;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -61,19 +64,16 @@ namespace S_Nav
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
+
+            points = null;
+            floorFile = file;
         }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
         private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        {
-            if (points.Count < 1)
-            {
-                return;
-            }
-
-
+        { 
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -88,14 +88,14 @@ namespace S_Nav
             canvas.Save();
 
             // Calls routing
-            if (currentLocation != null)
-            {
-                Route route = new Route(points);
-                points = route.calculateRoute(); // convert all given points to calculated route
-                drawRoute(points, canvas);
-
-                canvas.DrawPoint(points[points.Count - 1].getPointLocation(), redStroke);
-            }
+            //if (currentLocation != null)
+            //{
+            //    Route route = new Route(points);
+            //    points = route.calculateRoute(); // convert all given points to calculated route
+            //    drawRoute(points, canvas);
+            //
+            //    canvas.DrawPoint(points[points.Count - 1].getPointLocation(), redStroke);
+            //}
         }
 
         // try to call only when loading new floor
