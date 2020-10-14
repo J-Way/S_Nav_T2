@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.ComponentModel;
 using S_Nav.Navigation;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
+using S_Nav.Firebase;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Numerics;
+using System.Reflection;
 
 namespace S_Nav
 {
@@ -19,6 +22,7 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
+
         String currentLocation;
 
         // temporary route colour
@@ -50,12 +54,14 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
-        // image being loaded
-        SKBitmap image;
-        
+        public NavigationPageDetail()
+        {
+            InitializeComponent();
+        }
+
         // creates detail page
         // dont touch this
-        public NavigationPageDetail()
+        public NavigationPageDetail(List<MapPoint> p, string file)
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
@@ -66,6 +72,12 @@ namespace S_Nav
         ///         NavigationPageDetail()
         private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
+            if (points.Count < 1)
+            {
+                return;
+            }
+
+
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -74,11 +86,10 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            setFloorPlan(width, height);
-
+            setFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
-            canvas.Save(); // unnecessary at this moment, but leave in
+            canvas.Save();
 
             // Calls routing
             if (currentLocation != null)
@@ -96,12 +107,14 @@ namespace S_Nav
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(int width, int height)
+        // try to call only when loading new floor
+        // (currently the same static image)
+        private void setFloorPlan(string file)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            String resourceID = "S_Nav.TRAE2.jpg";
-            using (Stream stream = assembly.GetManifestResourceStream(resourceID))
+            String resourceId = "S_Nav.Media.Images." + file;
+            using (Stream stream = assembly.GetManifestResourceStream(resourceId))
             {
                 image = SKBitmap.Decode(stream);
             }
@@ -110,19 +123,19 @@ namespace S_Nav
         //
         // Takes a list of points and  draws lines between them
         //
-        private void drawRoute(List<MapPoint> points, SKCanvas canvas)
-        {
-            for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
-            {
-                if (i == 0)
-                {
-                    canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
-                }
-                else if (i < points.Count - 1) {
-                    canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
-                }
-                canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
-            }
-        }
+        //private void drawRoute(List<MapPoint> points, SKCanvas canvas)
+        //{
+        //    for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
+        //    {
+        //        if (i == 0)
+        //        {
+        //            canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
+        //        }
+        //        else if (i < points.Count - 1) {
+        //            canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
+        //        }
+        //        canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
+        //    }
+        //}
     }
 }

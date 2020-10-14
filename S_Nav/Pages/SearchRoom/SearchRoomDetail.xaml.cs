@@ -1,4 +1,5 @@
-﻿using System;
+﻿using S_Nav.Firebase;
+using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -9,31 +10,35 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
+        // 
+        // Will likely need to move data loading to a prior blank activity to avoid user holdups
+        //
+        FirebaseConnection firebaseConnection = new FirebaseConnection();
+        List<MapPoint> points;
+        Uri imageUri;
+        string floorFile;
+
         public SearchRoomDetail()
         {
             InitializeComponent();
 
             populatePicker(curLocPicker);
             populatePicker(destLocPicker);
-
-            curLocPicker.SelectedItem = curLocPicker.Items[0];
-            destLocPicker.SelectedItem = curLocPicker.Items[1];
         }
 
-        void populatePicker(Picker picker)
+        async void populatePicker(Picker picker)
         {
-            // will definitely want to access these in a better way
-            List<String> pointNames = new List<string>();
-            LoadPoints lp = new LoadPoints();
-            pointNames = lp.loadRoomNames();
+            points = await firebaseConnection.GetFloorPoints("TRAE2");
 
-            foreach (String name in pointNames)
+            foreach (var p in points)
             {
-                picker.Items.Add(name);
+                picker.Items.Add(p.getPointName());
             }
+
+            picker.SelectedItem = picker.Items[0];
         }
 
-        private void SearchRoute_Clicked(object sender, EventArgs e)
+        private async void SearchRoute_Clicked(object sender, EventArgs e)
         {
             if(curLocPicker.SelectedItem == null || destLocPicker.SelectedItem == null)
             {
@@ -49,9 +54,11 @@ namespace S_Nav.Pages.NavPage.Searches
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);
 
-                var routePage = new NavigationPage();
+                floorFile = "TRA-E-2.png";
 
-                Navigation.PushModalAsync(routePage);
+                NavigationPage routePage = new NavigationPage(points, floorFile);
+
+                await Navigation.PushModalAsync(routePage);
             }
         }
     }
