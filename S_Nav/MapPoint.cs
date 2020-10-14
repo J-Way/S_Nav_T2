@@ -1,69 +1,36 @@
 ﻿using System;
-using System.Numerics;
+using System.Collections.Generic;
+using System.Text;
+using SkiaSharp;
 
 namespace S_Nav
 {
-    public class MapPoint
+    class MapPoint
     {
-        private string point_name { get; set; }
-        private string pointDescription { get; set; }
+        String pointName;
+        String pointDescription; // placeholder for things like bathroom, office, etc.
 
-        private Vector2 pointLocation { get; set; }
+        public SKPoint pointLocation; // remove public modifier after testing
 
-        public string getPointName()
+        public String getPointName()
         {
-            return this.point_name;
+            return this.pointName;
         }
 
-        public void setPointName(string name)
+        public MapPoint(String pName, SKPoint pLocation)
         {
-            this.point_name = name;
-        }
-
-        public MapPoint(String pName, Vector2 pLocation)
-        {
-            this.point_name = pName;
+            this.pointName = pName;
             this.pointLocation = pLocation;
         }
 
-        public MapPoint(Vector2 pLocation)
+        public MapPoint(SKPoint pLocation)
         {
             this.pointLocation = pLocation;
         }
 
-        public MapPoint(String pName, float x, float y)
-        {
-            this.point_name = pName;
-            this.pointLocation = new Vector2(x, y);
-        }
-
-        public MapPoint()
-        {
-        }
-
-        public Vector2 getPointLocation()
+        public SKPoint getPointLocation()
         {
             return this.pointLocation;
-        }
-
-
-        public int getPointX(float width)
-        {
-            return (int) (this.pointLocation.X * width);
-        }
-        public int getPointY(float height)
-        {
-            return (int) (this.pointLocation.Y * height);
-        }
-
-        public void setPointY(float y)
-        {
-            this.pointLocation = new Vector2(this.pointLocation.X, y);
-        }
-
-        public void setPointX(float x)
-        {
-            this.pointLocation =new Vector2(x, this.pointLocation.Y);
         }
     }
 }
