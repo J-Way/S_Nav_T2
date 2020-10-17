@@ -115,11 +115,14 @@ namespace S_Nav
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             LoadPoints pointLoader = new LoadPoints();
-            List<MapPoint> points = pointLoader.loadE2Points(width, height);
+            List<List<MapPoint>> points = pointLoader.loadE2Points(width, height);
 
             foreach (var point in points)
             {
-                canvas.DrawPoint(point.getPointLocation(), redStroke);
+                foreach (var item in point)
+                {
+                    canvas.DrawPoint(item.getPointLocation(), redStroke);
+                }
             }
 
             // Calls routing
