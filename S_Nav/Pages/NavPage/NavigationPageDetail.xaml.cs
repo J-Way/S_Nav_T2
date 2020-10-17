@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.ComponentModel;
+using S_Nav.Navigation;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 
@@ -18,6 +19,7 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
+
         string currentWing, currentLocation, destinationWing, destinationLocation;
 
         // temporary route colour
@@ -117,6 +119,18 @@ namespace S_Nav
             LoadPoints pointLoader = new LoadPoints();
             List<List<MapPoint>> points = new List<List<MapPoint>>();
 
+            // Calls routing
+            if (currentLocation != null)
+            {
+                LoadPoints pointLoader = new LoadPoints();
+                List<MapPoint> points = pointLoader.loadPoints(width, height);
+
+                Route route = new Route(points);
+                points = route.calculateRoute(); // convert all given points to calculated route
+                drawRoute(points, canvas);
+
+                canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+            }
             if (currentLocation.Substring(1,1) == "1")
             {
                 points = pointLoader.loadE1Points(width,height);
@@ -124,15 +138,6 @@ namespace S_Nav
             else
             {
                 points = pointLoader.loadE2Points(width, height);
-            }
-
-            // Calls routing
-            if (points != null)
-            {
-                List<MapPoint> routePoints = calculateRoute(points[0]);
-                drawRoute(routePoints, canvas);
-            
-                canvas.DrawPoint(routePoints[routePoints.Count - 1].pointLocation, redStroke);
             }
         }
 
