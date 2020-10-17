@@ -1,0 +1,17 @@
+﻿User selects floor x && floor y
+	- check for difference in floor numbers between start and end location
+		- ex location.substring(1,1)
+	- if no difference 
+		- routing is on single floor
+	- else 
+		- replace the destination location value with the nearest traversal point
+			- will require a distance lookup
+		- route to that traversal point
+		- user clicks go up button
+		- current destination is replaced with next floors traversal point
+			- keeping traversal points named same is key for this
+		- call regular routing with updated current position and now accurate end destination
+
+User selects wing x && wing y
+	- similar to above but change from using a traversal point as temporary destination
+	to a wing point(? don't know if we have a name for these yet)

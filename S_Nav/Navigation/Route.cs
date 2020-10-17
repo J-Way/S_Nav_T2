@@ -17,13 +17,13 @@ namespace S_Nav.Navigation
         private MapPoint startPoint;
         private MapPoint endPoint;
 
-        public Route(List<MapPoint> _givenPoints)
+        public Route(List<List<MapPoint>> _givenPoints)
         {
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
 
-            givenPoints = _givenPoints;
-            hallPoints = givenPoints.FindAll(p => p.getPointName().Contains("hall"));
+            givenPoints = _givenPoints[0];
+            hallPoints = _givenPoints[1];
 
             startPoint = givenPoints.Find(i => i.getPointName() == currentLocation);
             endPoint = givenPoints.Find(i => i.getPointName() == destinationLocation);
@@ -37,7 +37,6 @@ namespace S_Nav.Navigation
             routePoints.Add(startPoint);
 
             // If either start or end is not a sub-room
-
             if (currentLocation.Length > 4)
             {
                 // Master room of first point

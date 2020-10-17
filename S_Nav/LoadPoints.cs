@@ -105,8 +105,8 @@ namespace S_Nav
         {
             List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
             List<MapPoint> roomPoints = new List<MapPoint>();
-            List<MapPoint> traversalPoints = new List<MapPoint>();
             List<MapPoint> hallPoints = new List<MapPoint>();
+            List<MapPoint> traversalPoints = new List<MapPoint>();
 
             mapPoints.Add(roomPoints);
             mapPoints.Add(traversalPoints);
@@ -177,8 +177,8 @@ namespace S_Nav
         {
             List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
             List<MapPoint> roomPoints = new List<MapPoint>();
-            List<MapPoint> traversalPoints = new List<MapPoint>();
             List<MapPoint> hallPoints = new List<MapPoint>();
+            List<MapPoint> traversalPoints = new List<MapPoint>();
 
             mapPoints.Add(roomPoints);
             mapPoints.Add(traversalPoints);
