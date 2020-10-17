@@ -6,11 +6,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Media\Images\TRA\G\TRA-G-1.png" />
+    <None Remove="Media\Images\TRA\G\TRA-G-2.png" />
+    <None Remove="Media\Images\TRA\G\TRA-G-3.png" />
+    <None Remove="Media\Images\TRA\G\TRA-G-4.png" />
+    <None Remove="Media\Images\TRA\G\TRA-G-B.png" />
+    <None Remove="Media\Images\TRA\TRA-E-1.png" />
+    <None Remove="Media\Images\TRA\TRA-E-2.png" />
+    <None Remove="TRAE1.jpg" />
     <None Remove="TRAE2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="TRAE2.jpg" />
+    <EmbeddedResource Include="Media\Images\TRA\E\TRA-E-1.png" />
+    <EmbeddedResource Include="Media\Images\TRA\E\TRA-E-2.png" />
+    <EmbeddedResource Include="Media\Images\TRA\G\TRA-G-1.png" />
+    <EmbeddedResource Include="Media\Images\TRA\G\TRA-G-2.png" />
+    <EmbeddedResource Include="Media\Images\TRA\G\TRA-G-3.png" />
+    <EmbeddedResource Include="Media\Images\TRA\G\TRA-G-4.png" />
+    <EmbeddedResource Include="Media\Images\TRA\G\TRA-G-B.png" />
   </ItemGroup>
 
   <ItemGroup>
