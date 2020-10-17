@@ -68,7 +68,7 @@ namespace S_Nav
             destinationWing = Preferences.Get("destWing", null);
             destinationLocation = Preferences.Get("destLoc", null);
 
-            floorFile = "S_Nav.Media.Images.TRA.E.TRA-E-2.png";
+            floorFile = "S_Nav.Media.Images.TRA.E.TRA-E-1.png";
         }
 
         public NavigationPageDetail(string file)
@@ -115,14 +115,14 @@ namespace S_Nav
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             LoadPoints pointLoader = new LoadPoints();
-            List<List<MapPoint>> points = pointLoader.loadE2Points(width, height);
 
-            foreach (var point in points)
+            if (currentLocation.Substring(1,1) == "1")
             {
-                foreach (var item in point)
-                {
-                    canvas.DrawPoint(item.getPointLocation(), redStroke);
-                }
+                List<List<MapPoint>> points = pointLoader.loadE1Points(width,height);
+            }
+            else
+            {
+                List<List<MapPoint>> points = pointLoader.loadE2Points(width, height);
             }
 
             // Calls routing
