@@ -115,27 +115,25 @@ namespace S_Nav
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             LoadPoints pointLoader = new LoadPoints();
+            List<List<MapPoint>> points = new List<List<MapPoint>>();
 
             if (currentLocation.Substring(1,1) == "1")
             {
-                List<List<MapPoint>> points = pointLoader.loadE1Points(width,height);
+                points = pointLoader.loadE1Points(width,height);
             }
             else
             {
-                List<List<MapPoint>> points = pointLoader.loadE2Points(width, height);
+                points = pointLoader.loadE2Points(width, height);
             }
 
             // Calls routing
-            //if (currentLocation != null)
-            //{
-            //    LoadPoints pointLoader = new LoadPoints();
-            //    List<MapPoint> points = pointLoader.loadPoints(width, height);
-            //
-            //    points = calculateRoute(points);
-            //    drawRoute(points, canvas);
-            //
-            //    canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
-            //}
+            if (points != null)
+            {
+                List<MapPoint> routePoints = calculateRoute(points[0]);
+                drawRoute(routePoints, canvas);
+            
+                canvas.DrawPoint(routePoints[routePoints.Count - 1].pointLocation, redStroke);
+            }
         }
 
         // try to call only when loading new floor
@@ -173,10 +171,6 @@ namespace S_Nav
             NavigationPage routePage = new NavigationPage("S_Nav.TRAE2.jpg");
             await Navigation.PushModalAsync(routePage);
         }
-
-
-
-
         private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)
         {
             List<MapPoint> routePoints = new List<MapPoint>();
@@ -315,9 +309,7 @@ namespace S_Nav
             // failsafe return
             return currentPoint;
         }
-
         
-
         //
         // Takes a list of points and  draws lines between them
         //
@@ -334,8 +326,6 @@ namespace S_Nav
                 }
                 canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
             }
-        }
-
-       
+        }     
     }
 }
