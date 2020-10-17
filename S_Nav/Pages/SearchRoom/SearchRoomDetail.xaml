@@ -28,27 +28,42 @@
         <Label Text="" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
                FontSize="Medium" FontAttributes="Bold" x:Name="lblErrorText"/>
 
-
-        <Label Text="Current Location = " 
+        <Label Text="Current Wing = " Grid.Row="1" Grid.Column="1"
+               Grid.ColumnSpan="2" FontSize="Body" 
+               HorizontalOptions="CenterAndExpand"/>
+        <Picker Title="Current wing" 
+                    Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
+                    x:Name="curWingPicker"
+                HorizontalOptions="Fill"/>
+        
+        <Label Text="Current Room = " 
                    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
                FontSize="Body" HorizontalOptions="CenterAndExpand"/>
         <Picker Title="Current Location" 
                     Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"
-                    x:Name="curLocPicker"
+                    x:Name="curRoomPicker"
                 HorizontalOptions="Fill"/>
 
 
-        <Label Text="Destination Location = " 
+        <Label Text="Destination Wing = " 
                    Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                 HorizontalOptions="CenterAndExpand"
                FontSize="Body"/>
-        <Picker Title="Destination Location" 
+        <Picker Title="Destination Wing" 
                     Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2"
-                    x:Name="destLocPicker"
+                    x:Name="destWingPicker"
+                HorizontalOptions="Fill"/>
+        <Label Text="Destination Room = " 
+                   Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+                HorizontalOptions="CenterAndExpand"
+               FontSize="Body"/>
+        <Picker Title="Destination Room" 
+                    Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2"
+                    x:Name="destRoomPicker"
                 HorizontalOptions="Fill"/>
 
         <Button Text="Start navigation" 
-                Grid.Row="5"
+                Grid.Row="7"
                 Grid.Column="0"
                 Grid.ColumnSpan="6"
                 HorizontalOptions="Fill"

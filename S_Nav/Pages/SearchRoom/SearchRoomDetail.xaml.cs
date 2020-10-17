@@ -23,9 +23,12 @@ namespace S_Nav.Pages.NavPage.Searches
         void populatePicker(Picker picker)
         {
             // will definitely want to access these in a better way
-            List<String> pointNames = new List<string>();
             LoadPoints lp = new LoadPoints();
-            pointNames = lp.loadRoomNames();
+            List<string> pointNames = lp.loadRoomNames();
+
+            // This should be removable once shifted to firebase
+            //      - save processing time however marginal
+            pointNames.Sort();
 
             foreach (String name in pointNames)
             {

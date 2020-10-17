@@ -12,7 +12,7 @@ namespace S_Nav
         public List<String> loadRoomNames()
         {
             List<String> rooms = new List<string>();
-            /*
+            
             // E200
             rooms.Add("E200"); //E200 (Center left)
             rooms.Add("E200A"); //E200A
@@ -51,9 +51,8 @@ namespace S_Nav
             rooms.Add("E210"); //E210
             rooms.Add("E211"); //E211
             rooms.Add("E212"); //E212
-            */
 
-            //Start of second floor rooms
+            //Start of first floor rooms
             rooms.Add("E100");
             rooms.Add("E101");
             rooms.Add("E101A");
@@ -103,20 +102,8 @@ namespace S_Nav
             points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .67f, height * .39f))); //adjusted
             points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .485f))); //adjusted
 
-            points.Add(new MapPoint("hallE108UpperInside", new SKPoint(width * .22f, height * .595f))); //added, not really functional
-            points.Add(new MapPoint("hallE108LowerInside", new SKPoint(width * .22f, height * .695f))); //added, not really functional
-
-            /* ORIGINAL HALL POINTS FOR SECOND FLOOR
-            points.Add(new MapPoint("hallTopLeft", new SKPoint(width * .37f, height * .30f)));
-            points.Add(new MapPoint("hallMidLeftCenter", new SKPoint(width * .37f, height * .53f)));
-            points.Add(new MapPoint("hallE207Entrance", new SKPoint(width * .37f, height * .60f)));
-            points.Add(new MapPoint("hallBottomLeft", new SKPoint(width * .37f, height * .73f)));
-            points.Add(new MapPoint("hallTopMid", new SKPoint(width * .50f, height * .30f)));
-            points.Add(new MapPoint("hallTopRight", new SKPoint(width * .73f, height * .30f)));
-            points.Add(new MapPoint("hallCurvedStart", new SKPoint(width * .73f, height * .36f)));
-            points.Add(new MapPoint("hallCurvedMid", new SKPoint(width * .68f, height * .43f)));
-            points.Add(new MapPoint("hallBottomRight", new SKPoint(width * .57f, height * .53f)));
-            */
+            points.Add(new MapPoint("hallE108UpperInside", new SKPoint(width * .22f, height * .595f))); //added, not functional
+            points.Add(new MapPoint("hallE108LowerInside", new SKPoint(width * .22f, height * .695f))); //added, not functional
 
             // floor traversal
             points.Add(new MapPoint("stairsTopLeft", new SKPoint(width * .24f, height * .25f)));//topleft stairs 
@@ -129,7 +116,7 @@ namespace S_Nav
             points.Add(new MapPoint("bathroomHandicap", new SKPoint(width * .78f, height * .32f)));  //handicap bathroom
             points.Add(new MapPoint("bathroomMen",new SKPoint(width * .6f, height * .50f))); //mens bathroom
 
-            /*
+            
             // ROOM POINTS FOR SECOND FLOOR
             points.Add(new MapPoint("E200", new SKPoint(width * .50f, height * .38f))); //E200 (Center left)
             points.Add(new MapPoint("E200A", new SKPoint(width * .67f, height * .36f))); //E200A
@@ -168,7 +155,6 @@ namespace S_Nav
             points.Add(new MapPoint("E210", new SKPoint(width * .385f, height * .42f))); //E210
             points.Add(new MapPoint("E211", new SKPoint(width * .385f, height * .50f))); //E211
             points.Add(new MapPoint("E212", new SKPoint(width * .42f, height * .52f))); //E212
-            */
 
             //Start of first floor points
             points.Add(new MapPoint("E100", new SKPoint(width * .71f, height * .32f))); //done
@@ -198,8 +184,5 @@ namespace S_Nav
             return points;
             
         }
-
-        // loadFromFile()
-        // loadFromServer()
     }
 }
