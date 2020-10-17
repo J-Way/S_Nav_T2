@@ -22,8 +22,22 @@
                            Grid.RowSpan="3"
                            Grid.Column="0"
                            Grid.ColumnSpan="2"/>
+        <Button Text="Move Down a Floor"
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                  Grid.Row="3"
+                   Grid.Column="0"
+                Clicked="DownClicked"/>
+
+        <Button Text="Move Up a Floor"
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                  Grid.Row="3"
+                   Grid.Column="1"
+                Clicked="UpClicked"/>
+
         <Label Text="Route Details Placeholder"
-               Grid.Row="3"
+               Grid.Row="4"
                Grid.Column="0"/>
     </Grid>
 </ContentPage>

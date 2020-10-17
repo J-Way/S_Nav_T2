@@ -24,6 +24,13 @@ namespace S_Nav
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
         }
 
+        public NavigationPage(string floorFile)
+        {
+            InitializeComponent();
+            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
+            Detail = new NavigationPageDetail(floorFile);
+        }
+
         private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var item = e.SelectedItem as NavigationPageMasterMenuItem;
