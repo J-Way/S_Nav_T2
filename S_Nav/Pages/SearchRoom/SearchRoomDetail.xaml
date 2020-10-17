@@ -34,7 +34,7 @@
         <Picker Title="Current wing" 
                     Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="curWingPicker"
-                HorizontalOptions="Fill"/>
+                HorizontalOptions="Fill" Unfocused="curWingPicker_Unfocused"/>
         
         <Label Text="Current Room = " 
                    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
@@ -42,7 +42,8 @@
         <Picker Title="Current Location" 
                     Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="curRoomPicker"
-                HorizontalOptions="Fill"/>
+                HorizontalOptions="Fill"
+                IsEnabled="False"/>
 
 
         <Label Text="Destination Wing = " 
@@ -52,7 +53,8 @@
         <Picker Title="Destination Wing" 
                     Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="destWingPicker"
-                HorizontalOptions="Fill"/>
+                HorizontalOptions="Fill" Unfocused="destWingPicker_Unfocused"/>
+        
         <Label Text="Destination Room = " 
                    Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
                 HorizontalOptions="CenterAndExpand"
@@ -60,7 +62,10 @@
         <Picker Title="Destination Room" 
                     Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="destRoomPicker"
-                HorizontalOptions="Fill"/>
+                HorizontalOptions="Fill" IsEnabled="False"/>
+
+        <Label Text="Please note you must select a wing before rooms can be viewed. applies to both current and destination location"
+               Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="4"/>
 
         <Button Text="Start navigation" 
                 Grid.Row="7"

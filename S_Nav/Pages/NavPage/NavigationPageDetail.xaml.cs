@@ -18,7 +18,7 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
-        String currentLocation, destinationLocation;
+        string currentWing, currentLocation, destinationWing, destinationLocation;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -54,14 +54,43 @@ namespace S_Nav
 
         string floorFile;
 
-        // creates detail page
-        // dont touch this
+        //
+        // placeholder constructor, only called in direct page access
+        // i.e. no route data given
+        //
         public NavigationPageDetail()
         {
             InitializeComponent();
+
+            // Get("x", null), null is placeholder value if preference not found
+            currentWing = Preferences.Get("curWing", null);
             currentLocation = Preferences.Get("curLoc", null);
+            destinationWing = Preferences.Get("destWing", null);
             destinationLocation = Preferences.Get("destLoc", null);
-            floorFile = "S_Nav.TRAE1.jpg";
+
+            floorFile = "S_Nav.Media.Images.TRA.E.TRA-E-2.png";
+        }
+
+        public NavigationPageDetail(string file)
+        {
+            InitializeComponent();
+            currentLocation = Preferences.Get("curLoc", null);
+            floorFile = file;
+        }
+
+        public NavigationPageDetail(bool isRouting)
+        {
+            InitializeComponent();
+
+            currentWing = Preferences.Get("curWing", null);
+            currentLocation = Preferences.Get("curLoc", null);
+            destinationWing = Preferences.Get("destWing", null);
+            destinationLocation = Preferences.Get("destLoc", null);
+
+            if (isRouting)
+            {
+                floorFile = "S_Nav.Media.Images.TRA." + currentWing.Substring(0, 1) + ".TRA-" + currentWing + ".png";
+            }
         }
 
         ///     handles / calls all the drawing
@@ -85,22 +114,30 @@ namespace S_Nav
 
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
-            // Calls routing
-            if (currentLocation != null)
+            LoadPoints pointLoader = new LoadPoints();
+            List<MapPoint> points = pointLoader.loadE2Points(width, height);
+
+            foreach (var point in points)
             {
-                LoadPoints pointLoader = new LoadPoints();
-                List<MapPoint> points = pointLoader.loadPoints(width, height);
-
-                points = calculateRoute(points);
-                drawRoute(points, canvas);
-
-                canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+                canvas.DrawPoint(point.getPointLocation(), redStroke);
             }
+
+            // Calls routing
+            //if (currentLocation != null)
+            //{
+            //    LoadPoints pointLoader = new LoadPoints();
+            //    List<MapPoint> points = pointLoader.loadPoints(width, height);
+            //
+            //    points = calculateRoute(points);
+            //    drawRoute(points, canvas);
+            //
+            //    canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+            //}
         }
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(String blueprint)
+        private void setFloorPlan(string blueprint)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
@@ -108,13 +145,6 @@ namespace S_Nav
             {
                 image = SKBitmap.Decode(stream);
             }
-        }
-
-        public NavigationPageDetail(string file)
-        {
-            InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
         }
 
         private async void DownClicked(object sender, EventArgs e)
