@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="TRAE1.jpg" />
-    <EmbeddedResource Include="TRAE2.jpg" />
+    <EmbeddedResource Include="Media\Images\TRAE1.jpg" />
+    <EmbeddedResource Include="Media\Images\TRAE2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
