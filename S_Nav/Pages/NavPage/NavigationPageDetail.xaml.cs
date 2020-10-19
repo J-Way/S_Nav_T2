@@ -51,9 +51,7 @@ namespace S_Nav
 
         // image being loaded
         SKBitmap image;
-
-        string floorFile;
-
+        
         // creates detail page
         // dont touch this
         public NavigationPageDetail()
@@ -61,19 +59,12 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
-            floorFile = "S_Nav.TRAE1.jpg";
         }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
         private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        {
-            setFloorPlan(floorFile);
-            printFloorPlans(e);
-        }
-
-        private void printFloorPlans(SKPaintSurfaceEventArgs e)
         {
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
@@ -83,8 +74,13 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            setFloorPlan(width, height);
 
+            canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            //canvas.DrawBitmap(image, new SKRect(0, 0, 0, 0));
+            canvas.Save(); // unnecessary at this moment, but leave in
+
+            
             // Calls routing
             if (currentLocation != null)
             {
@@ -96,53 +92,23 @@ namespace S_Nav
 
                 canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
             }
+            
         }
+
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(String blueprint)
+        private void setFloorPlan(int width, int height)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            using (Stream stream = assembly.GetManifestResourceStream(blueprint))
+            //String resourceID = "S_Nav.TRAE1.jpg";
+            String resourceID = "S_Nav.TRAG2.jpg";
+            using (Stream stream = assembly.GetManifestResourceStream(resourceID))
             {
                 image = SKBitmap.Decode(stream);
             }
         }
-
-        public NavigationPageDetail(string file)
-        {
-            InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
-        }
-
-        private async void DownClicked(object sender, EventArgs e)
-        {
-            Console.WriteLine("Down Clicked");
-            image.Reset();
-            setFloorPlan("S_Nav.TRAE1.jpg");
-
-            //printFloorPlans();
-
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAE1.jpg");
-            await Navigation.PushModalAsync(routePage);
-        }
-
-        private async void UpClicked(object sender, EventArgs e)
-        {
-            Console.WriteLine("Up Clicked");
-            image.Reset();
-            setFloorPlan("S_Nav.TRAE2.jpg");
-
-            //printFloorPlans();
-
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAE2.jpg");
-            await Navigation.PushModalAsync(routePage);
-        }
-
-
-
 
         private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)
         {
@@ -283,8 +249,6 @@ namespace S_Nav
             return currentPoint;
         }
 
-        
-
         //
         // Takes a list of points and  draws lines between them
         //
@@ -303,6 +267,6 @@ namespace S_Nav
             }
         }
 
-       
+        
     }
 }
