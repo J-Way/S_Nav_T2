@@ -286,22 +286,24 @@ namespace S_Nav
             points.Add(new MapPoint("G102", new SKPoint(width * .51f, height * .39f)));//done
             points.Add(new MapPoint("G103", new SKPoint(width * .51f, height * .49f)));//done
 
-            //In Progress
-            points.Add(new MapPoint("G104A", new SKPoint(width * .7f, height * .6f)));
-            points.Add(new MapPoint("G104B", new SKPoint(width * .7f, height * .6f)));
-            points.Add(new MapPoint("G104C", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G104D", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G105A", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G105B", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G105C", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G106A", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G106B", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G106C", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G106D", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G107A", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G107B", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G107C", new SKPoint(width * .49f, height * .45f)));
-            points.Add(new MapPoint("G107D", new SKPoint(width * .49f, height * .45f)));
+            points.Add(new MapPoint("G104A", new SKPoint(width * .7f, height * .66f)));//done
+            points.Add(new MapPoint("G104B", new SKPoint(width * .7f, height * .61f)));//done
+            points.Add(new MapPoint("G104C", new SKPoint(width * .77f, height * .61f)));//done
+            points.Add(new MapPoint("G104D", new SKPoint(width * .77f, height * .66f)));//done
+
+            points.Add(new MapPoint("G105A", new SKPoint(width * .7f, height * .72f)));//done
+            points.Add(new MapPoint("G105B", new SKPoint(width * .77f, height * .7f)));//done
+            points.Add(new MapPoint("G105C", new SKPoint(width * .77f, height * .75f)));//done
+
+            points.Add(new MapPoint("G106A", new SKPoint(width * .77f, height * .80f)));//done
+            points.Add(new MapPoint("G106B", new SKPoint(width * .77f, height * .84f)));//done
+            points.Add(new MapPoint("G106C", new SKPoint(width * .655f, height * .815f)));//done
+            points.Add(new MapPoint("G106D", new SKPoint(width * .655f, height * .77f)));//done
+
+            points.Add(new MapPoint("G107A", new SKPoint(width * .77f, height * .895f)));//done
+            points.Add(new MapPoint("G107B", new SKPoint(width * .77f, height * .92f)));//done
+            points.Add(new MapPoint("G107C", new SKPoint(width * .655f, height * .915f)));//done
+            points.Add(new MapPoint("G107D", new SKPoint(width * .655f, height * .865f)));//done
             //
 
             return points;
