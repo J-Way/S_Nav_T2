@@ -8,11 +8,15 @@
   <ItemGroup>
     <None Remove="TRAE1.jpg" />
     <None Remove="TRAE2.jpg" />
+    <None Remove="TRAG1.jpg" />
+    <None Remove="TRAG2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="TRAE1.jpg" />
     <EmbeddedResource Include="TRAE2.jpg" />
+    <EmbeddedResource Include="TRAG1.jpg" />
+    <EmbeddedResource Include="TRAG2.jpg" />
   </ItemGroup>
 
   <ItemGroup>

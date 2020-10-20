@@ -61,7 +61,7 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
-            floorFile = "S_Nav.TRAE1.jpg";
+            floorFile = "S_Nav.TRAG1.jpg";
         }
 
         ///     handles / calls all the drawing
