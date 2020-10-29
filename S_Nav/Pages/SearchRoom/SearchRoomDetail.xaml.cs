@@ -15,27 +15,27 @@ namespace S_Nav.Pages.NavPage.Searches
         //
         FirebaseConnection firebaseConnection = new FirebaseConnection();
         List<MapPoint> points;
-        Uri imageUri;
         string floorFile;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
 
-            populatePicker(curLocPicker);
-            populatePicker(destLocPicker);
+            populatePicker(curLocPicker, destLocPicker);
         }
 
-        async void populatePicker(Picker picker)
+        async void populatePicker(Picker curPicker, Picker destPicker)
         {
             points = await firebaseConnection.GetFloorPoints("TRAE2");
 
             foreach (var p in points)
             {
-                picker.Items.Add(p.getPointName());
+                curPicker.Items.Add(p.getPointName());
+                destPicker.Items.Add(p.getPointName());
             }
 
-            picker.SelectedItem = picker.Items[0];
+            curPicker.SelectedItem = curPicker.Items[0];
+            destPicker.SelectedItem = curPicker.Items[0];
         }
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
@@ -48,8 +48,6 @@ namespace S_Nav.Pages.NavPage.Searches
             {
                 String curRoomText = curLocPicker.SelectedItem.ToString();
                 String destRoomText = destLocPicker.SelectedItem.ToString();
-
-                Preferences.Clear(); // failsafe, shouldn't be needed
 
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);

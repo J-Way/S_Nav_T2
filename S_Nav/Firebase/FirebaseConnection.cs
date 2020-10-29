@@ -6,21 +6,71 @@ using Firebase.Auth;
 using System.Collections.Generic;
 using Firebase.Database.Query;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.IO;
+using System.Reflection;
+using Xamarin.Essentials;
+using System.Runtime.CompilerServices;
 
 namespace S_Nav.Firebase
 {
     class FirebaseConnection
     {
         // Test this out as a URI as well
-        static string dbLink = "https://fir-nav-fbd51.firebaseio.com/";
-        static string fileLink = "fir-nav-fbd51.appspot.com";
+        static string fileLink, dbLink, apiKey, debugMail, debugPw;
 
-        static FirebaseOptions dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = () => AnonLogin() };
-        static FirebaseStorageOptions fileOptions = new FirebaseStorageOptions { AuthTokenAsyncFactory = () => AnonLogin() };
+        static FirebaseOptions dbOptions;
+        static FirebaseStorageOptions fileOptions;
 
 
-        FirebaseClient firebaseDB = new FirebaseClient(dbLink, dbOptions);
-        FirebaseStorage firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
+        FirebaseClient firebaseDB;
+        FirebaseStorage firebaseFiles;
+
+        public FirebaseConnection()
+        {
+            firebaseSetup();
+
+            // these next 4 lines of code won't always need to exist concurently (wrong spelling?)
+            dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
+            fileOptions = new FirebaseStorageOptions  { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
+
+            firebaseDB = new FirebaseClient(dbLink, dbOptions);
+            firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
+        }
+
+        public static void firebaseSetup()
+        {
+            Assembly assembly = typeof(FirebaseConnection).GetTypeInfo().Assembly;
+            Stream stream = assembly.GetManifestResourceStream("S_Nav.Config.Config.json");
+
+            using (var reader = new StreamReader(stream))
+            {
+                var json = reader.ReadToEnd();
+                JObject jsonData = JObject.Parse(json);
+
+                foreach (var item in jsonData)
+                {
+                    switch (item.Key.ToString())
+                    {
+                        case "apiKey":
+                            apiKey = item.Value.ToString();
+                            break;
+                        case "dbLink":
+                            dbLink = item.Value.ToString();
+                            break;
+                        case "fileLink":
+                            fileLink = item.Value.ToString();
+                            break;
+                        case "testEmail":
+                            debugMail = item.Value.ToString();
+                            break;
+                        case "testPw":
+                            debugPw = item.Value.ToString();
+                            break;
+                    }
+                }
+            }
+        }
 
 
         public async Task<Uri> GetImage(string floor)
@@ -63,10 +113,21 @@ namespace S_Nav.Firebase
             return mapPoints;
         }
 
-        public static async Task<string> AnonLogin()
+        public static async Task<string> CheckToken(string apiKey, string debugMail, string debugPw)
         {
-            var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyDlrs12gBooCtCtg6SXVG2xP3BE-jYXk7g"));
-            var auth = await authProvider.SignInAnonymouslyAsync();
+            if (Preferences.Get("authToken", false))
+                return Preferences.Get("authToken", "");
+
+            return await DebugEmailLogin(apiKey, debugMail, debugPw);
+        }
+
+        public static async Task<string> DebugEmailLogin(string apiKey, string debugMail, string debugPw)
+        {
+            var authProvider = new FirebaseAuthProvider(new FirebaseConfig(apiKey));
+            var auth = await authProvider.SignInWithEmailAndPasswordAsync(debugMail, debugPw);
+
+            Preferences.Set("authToken", auth.FirebaseToken);
+
             return auth.FirebaseToken;
         }
     }

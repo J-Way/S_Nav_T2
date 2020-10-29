@@ -6,12 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Config\Config.json" />
     <None Remove="Media\Images\TRA-E-1.png" />
     <None Remove="Media\Images\TRA-E-2.png" />
     <None Remove="TRA-E-2.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Config\Config.json" />
     <EmbeddedResource Include="Media\Images\TRA-E-1.png" />
     <EmbeddedResource Include="Media\Images\TRA-E-2.png" />
   </ItemGroup>

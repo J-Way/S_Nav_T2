@@ -1,6 +1,6 @@
 ﻿using S_Nav.Pages.NavPage.Searches;
 using System;
-
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,6 +12,7 @@ namespace S_Nav.Pages.Login
         public Login()
         {
             InitializeComponent();
+            Preferences.Clear();
         }
 
         // does nothing currently
@@ -29,6 +30,8 @@ namespace S_Nav.Pages.Login
         // add SearchRoom page to stack
         private void RegisterLater_Clicked(object sender, EventArgs e)
         {
+            Preferences.Clear();
+
             Navigation.PushModalAsync(new SearchRoom());
         }
     }
