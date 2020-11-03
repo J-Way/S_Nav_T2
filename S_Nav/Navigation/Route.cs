@@ -46,10 +46,16 @@ namespace S_Nav.Navigation
                     roomPoints.Find(i => i.getPointName() == startPoint.getPointName().Substring(0, 4));
                 routePoints.Add(masterOfFirstPoint);
 
-                // single line route, no more
+                // single line route. covers adjacent sub-room -> master room edge case
                 if (masterOfFirstPoint.getPointName() == endPoint.getPointName())
                     return routePoints;
                 
+            }
+            else if (currentLocation == endPoint.getPointName().Substring(0, 4))
+            {
+                // alternative single line route. covers master room -> adjacent sub-room edge case
+                routePoints.Add(endPoint);
+                return routePoints;
             }
             
             // go to halls
