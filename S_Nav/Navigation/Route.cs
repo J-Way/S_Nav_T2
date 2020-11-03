@@ -11,7 +11,8 @@ namespace S_Nav.Navigation
         public String currentLocation { get; }
         public String destinationLocation { get; }
 
-        private List<MapPoint> givenPoints;
+        private List<MapPoint> roomPoints;
+        private List<MapPoint> stairPoints;
         private List<MapPoint> hallPoints;
 
         private MapPoint startPoint;
@@ -22,11 +23,12 @@ namespace S_Nav.Navigation
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
 
-            givenPoints = _givenPoints[0];
-            hallPoints = _givenPoints[1];
+            roomPoints = _givenPoints[0];
+            stairPoints = _givenPoints[1];
+            hallPoints = _givenPoints[2];
 
-            startPoint = givenPoints.Find(i => i.getPointName() == currentLocation);
-            endPoint = givenPoints.Find(i => i.getPointName() == destinationLocation);
+            startPoint = roomPoints.Find(i => i.getPointName() == currentLocation);
+            endPoint = roomPoints.Find(i => i.getPointName() == destinationLocation);
         }
 
         public List<MapPoint> calculateRoute()
@@ -41,7 +43,7 @@ namespace S_Nav.Navigation
             {
                 // Master room of first point
                 MapPoint masterOfFirstPoint =
-                    givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4));
+                    roomPoints.Find(i => i.getPointName() == startPoint.getPointName().Substring(0, 4));
                 routePoints.Add(masterOfFirstPoint);
 
                 // single line route, no more
@@ -54,7 +56,7 @@ namespace S_Nav.Navigation
             MapPoint firstHallPoint = getNearestHallPoint(startPoint.getPointLocation());
             routePoints.Add(firstHallPoint);
 
-            addRoutePoints(ref routePoints);
+            addRoutePoints(routePoints);
 
             // Destination point as last
             routePoints.Add(endPoint);
@@ -62,7 +64,7 @@ namespace S_Nav.Navigation
             return routePoints;
         }
 
-        private void addRoutePoints(ref List<MapPoint> routePoints)
+        private void addRoutePoints(List<MapPoint> routePoints)
         {
             // If end point is sub room of last added point in route, don't add any more
             if (endPoint.getPointName().Length > 4 &&
@@ -75,7 +77,7 @@ namespace S_Nav.Navigation
             {
                 if (findMasterRoom && endPoint.getPointName().Length > 4)
                 {
-                    MapPoint masterRoom = givenPoints.Find(i =>
+                    MapPoint masterRoom = roomPoints.Find(i =>
                         i.getPointName() == endPoint.getPointName().Substring(0, 4));
 
                     while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
@@ -113,7 +115,7 @@ namespace S_Nav.Navigation
                     nearestPoint = p;
             }
 
-            hallPoints.Remove(nearestPoint); // too far, don't touch again
+            // hallPoints.Remove(nearestPoint); // too far, don't touch again
             return nearestPoint;
         }
 
