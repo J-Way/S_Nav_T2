@@ -6,7 +6,7 @@ using Xamarin.Essentials;
 
 namespace S_Nav.Navigation
 {
-    class Route
+    class FloorRoute
     {
         public String currentLocation { get; }
         public String destinationLocation { get; }
@@ -18,8 +18,10 @@ namespace S_Nav.Navigation
         private MapPoint startPoint;
         private MapPoint endPoint;
 
-        public Route(List<List<MapPoint>> _givenPoints)
+        public FloorRoute(List<List<MapPoint>> _givenPoints)
         {
+            // TODO: Don't bind from config, but from args
+            // Purpose: Multi-floor support
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
 
@@ -79,6 +81,7 @@ namespace S_Nav.Navigation
 
             bool findMasterRoom = true; // of end point
 
+            // TODO: Stairs
             while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
             {
                 if (findMasterRoom && endPoint.getPointName().Length > 4)

@@ -121,24 +121,27 @@ namespace S_Nav
 
             if (isRouting)
             {
-                LoadPoints pointLoader = new LoadPoints();
-                List<List<MapPoint>> points = new List<List<MapPoint>>();
-
-                if (currentLocation.Substring(1, 1) == "1")
-                {
-                    points = pointLoader.loadE1Points(width, height);
-                }
-                else
-                {
-                    points = pointLoader.loadE2Points(width, height);
-                }
-
+                LoadPoints pointLoader = new LoadPoints(); // TODO: Replace point loader to Fb
+                
                 // Calls routing
                 if (currentLocation != null)
                 {
                     List<MapPoint> routePoints = new List<MapPoint>();
-                    Route route = new Route(points);
-                    routePoints = route.calculateRoute(); // convert all given points to calculated route
+
+                    // TODO: Replace floor point loader to Firebase fetch
+                    CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
+                    List<FloorPoint> cwPoints = cwRoute.calculateRoute();
+
+                    foreach (FloorPoint fp in cwPoints)
+                    {
+                        // TODO: Load Points from Firebase
+                        // use arg: fp.getName()
+                        // return examples: "E2", "AA1"
+                        List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
+                        FloorRoute route = new FloorRoute(mapPoints);
+                        routePoints.AddRange(route.calculateRoute());
+                    }
+
                     drawRoute(routePoints, canvas);
 
                     canvas.DrawPoint(routePoints[routePoints.Count - 1].pointLocation, redStroke);
