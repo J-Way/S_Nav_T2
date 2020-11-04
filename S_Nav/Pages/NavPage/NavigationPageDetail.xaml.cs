@@ -61,7 +61,8 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
-            floorFile = "S_Nav.TRAG1.jpg";
+            floorFile = "S_Nav.TRAE1.jpg";
+            EWingButtonLayout();
         }
 
         ///     handles / calls all the drawing
@@ -115,32 +116,138 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
+            if (floorFile.Equals("S_Nav.TRAG1.jpg") || floorFile.Equals("S_Nav.TRAG2.jpg")){
+                GWingButtonLayout();
+            } else if (floorFile.Equals("S_Nav.TRAE1.jpg") || floorFile.Equals("S_Nav.TRAE2.jpg"))
+            {
+                EWingButtonLayout();
+            }
         }
+
+        //GButtons View Function
+        private void GWingButtonLayout()
+        {
+            WingLeftButton.IsVisible = false;
+            WingUpButton.IsVisible = false;
+            WingRightButton.Text = "E Wing";
+            WingDownButton.IsVisible = false;
+            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            {
+                FloorDownButton.IsVisible = false;
+                FloorUpButton.IsVisible = true;
+            } else {
+                FloorDownButton.IsVisible = true;
+                FloorUpButton.IsVisible = false;
+            }
+        }
+
+        //EButton View Function
+        private void EWingButtonLayout()
+        {
+            WingLeftButton.IsVisible = true;
+            WingUpButton.IsVisible = true;
+            WingDownButton.IsVisible = false;
+            WingRightButton.Text = "C Wing";
+            WingUpButton.Text = "B Wing";
+            WingLeftButton.Text = "G Wing";
+            
+            if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            {
+                FloorDownButton.IsVisible = false;
+                FloorUpButton.IsVisible = true;
+            }
+            else
+            {
+                FloorDownButton.IsVisible = true;
+                FloorUpButton.IsVisible = false;
+            }
+        }
+
 
         private async void DownClicked(object sender, EventArgs e)
         {
             Console.WriteLine("Down Clicked");
             image.Reset();
-            setFloorPlan("S_Nav.TRAE1.jpg");
-
-            //printFloorPlans();
-
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAE1.jpg");
-            await Navigation.PushModalAsync(routePage);
+            if (floorFile.Equals("S_Nav.TRAG2.jpg"))
+            {
+                showG1();
+            }
+            else if (floorFile.Equals("S_Nav.TRAE2.jpg"))
+            {
+                showE1();
+            }
         }
 
         private async void UpClicked(object sender, EventArgs e)
         {
             Console.WriteLine("Up Clicked");
             image.Reset();
+            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            {
+                showG2();
+            } else if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            {
+                showE2();
+            }  
+        }
+
+        private async void WingLeftClicked(object sender, EventArgs e)
+        {
+            image.Reset();
+            if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            {
+                showG1();
+            }
+            else if (floorFile.Equals("S_Nav.TRAE2.jpg"))
+            {
+                showG2();
+            }
+        }
+
+        private async void WingRightClicked(object sender, EventArgs e)
+        {
+            image.Reset();
+            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            {
+                showE1();
+            }
+            else if (floorFile.Equals("S_Nav.TRAG2.jpg"))
+            {
+                showE2();
+            }
+        }
+
+        private async void showE1()
+        {
+           
+            setFloorPlan("S_Nav.TRAE1.jpg");
+            NavigationPage routePage = new NavigationPage("S_Nav.TRAE1.jpg");
+            await Navigation.PushModalAsync(routePage);
+        }
+
+        private async void showE2()
+        {
+            FloorUpButton.IsVisible = false;
             setFloorPlan("S_Nav.TRAE2.jpg");
-
-            //printFloorPlans();
-
             NavigationPage routePage = new NavigationPage("S_Nav.TRAE2.jpg");
             await Navigation.PushModalAsync(routePage);
         }
 
+        private async void showG1()
+        {
+            FloorDownButton.IsVisible = false;
+            setFloorPlan("S_Nav.TRAG1.jpg");
+            NavigationPage routePage = new NavigationPage("S_Nav.TRAG1.jpg");
+            await Navigation.PushModalAsync(routePage);
+        }
+
+        private async void showG2()
+        {
+            FloorUpButton.IsVisible = false;
+            setFloorPlan("S_Nav.TRAG2.jpg");
+            NavigationPage routePage = new NavigationPage("S_Nav.TRAG2.jpg");
+            await Navigation.PushModalAsync(routePage);
+        }
 
 
 
