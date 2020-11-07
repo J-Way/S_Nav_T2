@@ -1,25 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SkiaSharp;
+﻿using SkiaSharp;
+using System;
+using System.Numerics;
 
 namespace S_Nav
 {
-    class MapPoint
+    public class MapPoint
     {
-        String pointName;
-        String pointDescription; // placeholder for things like bathroom, office, etc.
+        private string point_name { get; set; }
+        private string pointDescription { get; set; }
 
-        public SKPoint pointLocation; // remove public modifier after testing
+        private SKPoint pointLocation { get; set; }
 
-        public String getPointName()
+        public string getPointName()
         {
-            return this.pointName;
+            return this.point_name;
+        }
+
+        public void setPointName(string name)
+        {
+            this.point_name = name;
         }
 
         public MapPoint(String pName, SKPoint pLocation)
         {
-            this.pointName = pName;
+            this.point_name = pName;
             this.pointLocation = pLocation;
         }
 
@@ -28,9 +32,39 @@ namespace S_Nav
             this.pointLocation = pLocation;
         }
 
+        public MapPoint(String pName, float x, float y)
+        {
+            this.point_name = pName;
+            this.pointLocation = new SKPoint(x, y);
+        }
+
+        public MapPoint()
+        {
+        }
+
         public SKPoint getPointLocation()
         {
             return this.pointLocation;
+        }
+
+
+        public int getPointX(float width)
+        {
+            return (int) (this.pointLocation.X * width);
+        }
+        public int getPointY(float height)
+        {
+            return (int) (this.pointLocation.Y * height);
+        }
+
+        public void setPointY(float y)
+        {
+            this.pointLocation = new SKPoint(this.pointLocation.X, y);
+        }
+
+        public void setPointX(float x)
+        {
+            this.pointLocation =new SKPoint(x, this.pointLocation.Y);
         }
     }
 }
