@@ -21,7 +21,7 @@ namespace S_Nav.Pages.NavPage.Searches
         {
             InitializeComponent();
 
-            populatePicker(curLocPicker, destLocPicker);
+            populatePicker(curRoomPicker, destRoomPicker);
         }
 
         async void populatePicker(Picker curPicker, Picker destPicker)
@@ -40,14 +40,14 @@ namespace S_Nav.Pages.NavPage.Searches
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
         {
-            if(curLocPicker.SelectedItem == null || destLocPicker.SelectedItem == null)
+            if(curRoomPicker.SelectedItem == null || destRoomPicker.SelectedItem == null)
             {
                 lblErrorText.Text = "ERROR - Must have a room selected in both room pickers";   
             }
             else
             {
-                String curRoomText = curLocPicker.SelectedItem.ToString();
-                String destRoomText = destLocPicker.SelectedItem.ToString();
+                String curRoomText = curRoomPicker.SelectedItem.ToString();
+                String destRoomText = destRoomPicker.SelectedItem.ToString();
 
                 Preferences.Set("curLoc", curRoomText);
                 Preferences.Set("destLoc", destRoomText);

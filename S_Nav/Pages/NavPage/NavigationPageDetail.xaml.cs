@@ -19,6 +19,7 @@ namespace S_Nav
     {
 
         String currentLocation, destinationLocation;
+        List<MapPoint> points;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -64,6 +65,7 @@ namespace S_Nav
             destinationLocation = Preferences.Get("destLoc", null);
             floorFile = "S_Nav.TRAE1.jpg";
             EWingButtonLayout();
+        }
 
         public NavigationPageDetail(List<MapPoint> p, string file)
         {
@@ -93,13 +95,13 @@ namespace S_Nav
             // Calls routing
             if (currentLocation != null)
             {
-                LoadPoints pointLoader = new LoadPoints();
-                List<MapPoint> points = pointLoader.loadPoints(width, height);
-
-                points = calculateRoute(points);
-                drawRoute(points, canvas);
-
-                canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
+                //LoadPoints pointLoader = new LoadPoints();
+                //List<MapPoint> points = pointLoader.loadPoints(width, height);
+                //
+                //points = calculateRoute(points);
+                //drawRoute(points, canvas);
+                //
+                //canvas.DrawPoint(points[points.Count - 1].getPointLocation(), redStroke);
             }
             canvas.Save();
 
@@ -107,7 +109,7 @@ namespace S_Nav
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(String blueprint)
+        private void setFloorPlan(string file)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
