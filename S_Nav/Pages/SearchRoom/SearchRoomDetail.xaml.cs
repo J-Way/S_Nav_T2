@@ -9,23 +9,32 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
+        LoadPoints lp = new LoadPoints();
+
         public SearchRoomDetail()
         {
             InitializeComponent();
 
-            populatePicker(curLocPicker);
-            populatePicker(destLocPicker);
-
-            curLocPicker.SelectedItem = curLocPicker.Items[0];
-            destLocPicker.SelectedItem = curLocPicker.Items[1];
+            populateWingList(curWingPicker);
+            populateWingList(destWingPicker);
         }
 
-        void populatePicker(Picker picker)
+        
+
+        void populateWingList(Picker picker)
+        {
+            List<string> roomNames = lp.loadWingNames();
+
+            foreach (var item in roomNames)
+            {
+                picker.Items.Add(item);
+            }
+        }
+
+        void populateRoomPicker(Picker picker)
         {
             // will definitely want to access these in a better way
-            List<String> pointNames = new List<string>();
-            LoadPoints lp = new LoadPoints();
-            pointNames = lp.loadRoomNames();
+            List<string> pointNames = lp.loadRoomNames();
 
             foreach (String name in pointNames)
             {
@@ -35,23 +44,40 @@ namespace S_Nav.Pages.NavPage.Searches
 
         private void SearchRoute_Clicked(object sender, EventArgs e)
         {
-            if(curLocPicker.SelectedItem == null || destLocPicker.SelectedItem == null)
+            if(destRoomPicker.SelectedItem == null || curRoomPicker.SelectedItem == null)
             {
                 lblErrorText.Text = "ERROR - Must have a room selected in both room pickers";   
             }
             else
             {
-                String curRoomText = curLocPicker.SelectedItem.ToString();
-                String destRoomText = destLocPicker.SelectedItem.ToString();
-
                 Preferences.Clear(); // failsafe, shouldn't be needed
 
-                Preferences.Set("curLoc", curRoomText);
-                Preferences.Set("destLoc", destRoomText);
+                Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
+                Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
 
-                var routePage = new NavigationPage();
+                Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
+                Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
 
-                Navigation.PushModalAsync(routePage);
+                bool isRouting = true;
+
+                Navigation.PushModalAsync(new NavigationPage(isRouting));
+            }
+        }
+
+        private void curWingPicker_Unfocused(object sender, FocusEventArgs e)
+        {
+            if (curWingPicker.SelectedIndex != -1)
+            {
+                populateRoomPicker(curRoomPicker);
+                curRoomPicker.IsEnabled = true;
+            }
+        }
+        private void destWingPicker_Unfocused(object sender, FocusEventArgs e)
+        {
+            if(destWingPicker.SelectedIndex != -1)
+            {
+                populateRoomPicker(destRoomPicker);
+                destRoomPicker.IsEnabled = true;
             }
         }
     }
