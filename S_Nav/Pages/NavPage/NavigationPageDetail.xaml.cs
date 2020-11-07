@@ -63,7 +63,7 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
-            floorFile = "S_Nav.TRAE1.jpg";
+            floorFile = "TRA-E-2.png";
             EWingButtonLayout();
         }
 
@@ -125,9 +125,9 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
-            if (floorFile.Equals("S_Nav.TRAG1.jpg") || floorFile.Equals("S_Nav.TRAG2.jpg")){
+            if (floorFile.Equals("S_Nav.TRAG1.png") || floorFile.Equals("S_Nav.TRAG2.png")){
                 GWingButtonLayout();
-            } else if (floorFile.Equals("S_Nav.TRAE1.jpg") || floorFile.Equals("S_Nav.TRAE2.jpg"))
+            } else if (floorFile.Equals("S_Nav.TRAE1.png") || floorFile.Equals("S_Nav.TRAE2.png"))
             {
                 EWingButtonLayout();
             }
@@ -140,7 +140,7 @@ namespace S_Nav
             WingUpButton.IsVisible = false;
             WingRightButton.Text = "E Wing";
             WingDownButton.IsVisible = false;
-            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            if (floorFile.Equals("S_Nav.TRAG1.png"))
             {
                 FloorDownButton.IsVisible = false;
                 FloorUpButton.IsVisible = true;
@@ -160,7 +160,7 @@ namespace S_Nav
             WingUpButton.Text = "B Wing";
             WingLeftButton.Text = "G Wing";
             
-            if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            if (floorFile.Equals("S_Nav.TRAE1.png"))
             {
                 FloorDownButton.IsVisible = false;
                 FloorUpButton.IsVisible = true;
@@ -173,54 +173,53 @@ namespace S_Nav
         }
 
 
-        private async void DownClicked(object sender, EventArgs e)
+        private void DownClicked(object sender, EventArgs e)
         {
-            Console.WriteLine("Down Clicked");
             image.Reset();
-            if (floorFile.Equals("S_Nav.TRAG2.jpg"))
+            if (floorFile.Contains("G") && !floorFile.Contains("1"))
             {
                 showG1();
             }
-            else if (floorFile.Equals("S_Nav.TRAE2.jpg"))
+            else if (floorFile.Contains("E") && !floorFile.Contains("1"))
             {
                 showE1();
             }
         }
 
-        private async void UpClicked(object sender, EventArgs e)
+        private void UpClicked(object sender, EventArgs e)
         {
             Console.WriteLine("Up Clicked");
             image.Reset();
-            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            if (floorFile.Contains("G") && floorFile.Contains("1"))
             {
                 showG2();
-            } else if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            } else if (floorFile.Contains("E") && floorFile.Contains("1"))
             {
                 showE2();
             }  
         }
 
-        private async void WingLeftClicked(object sender, EventArgs e)
+        private void WingLeftClicked(object sender, EventArgs e)
         {
             image.Reset();
-            if (floorFile.Equals("S_Nav.TRAE1.jpg"))
+            if (floorFile.Equals("TRA-E-1.png"))
             {
                 showG1();
             }
-            else if (floorFile.Equals("S_Nav.TRAE2.jpg"))
+            else if (floorFile.Equals("TRA-E-2.png"))
             {
                 showG2();
             }
         }
 
-        private async void WingRightClicked(object sender, EventArgs e)
+        private void WingRightClicked(object sender, EventArgs e)
         {
             image.Reset();
-            if (floorFile.Equals("S_Nav.TRAG1.jpg"))
+            if (floorFile.Equals("TRA-G-1.png"))
             {
                 showE1();
             }
-            else if (floorFile.Equals("S_Nav.TRAG2.jpg"))
+            else if (floorFile.Equals("TRA-G-2.png"))
             {
                 showE2();
             }
@@ -228,33 +227,28 @@ namespace S_Nav
 
         private async void showE1()
         {
-           
-            setFloorPlan("S_Nav.TRAE1.jpg");
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAE1.jpg");
+            NavigationPage routePage = new NavigationPage("TRA-E-1.png");
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void showE2()
         {
             FloorUpButton.IsVisible = false;
-            setFloorPlan("S_Nav.TRAE2.jpg");
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAE2.jpg");
+            NavigationPage routePage = new NavigationPage("TRA-E-2.png");
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void showG1()
         {
             FloorDownButton.IsVisible = false;
-            setFloorPlan("S_Nav.TRAG1.jpg");
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAG1.jpg");
+            NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-1.png");
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void showG2()
         {
             FloorUpButton.IsVisible = false;
-            setFloorPlan("S_Nav.TRAG2.jpg");
-            NavigationPage routePage = new NavigationPage("S_Nav.TRAG2.jpg");
+            NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-2.png");
             await Navigation.PushModalAsync(routePage);
         }
 
