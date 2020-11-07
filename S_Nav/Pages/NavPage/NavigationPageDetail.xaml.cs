@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.ComponentModel;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
+using System.Reflection;
 
 namespace S_Nav
 {
@@ -18,6 +17,7 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPageDetail : ContentPage
     {
+
         String currentLocation, destinationLocation;
 
         // temporary route colour
@@ -49,6 +49,7 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
+
         // image being loaded
         SKBitmap image;
 
@@ -63,19 +64,21 @@ namespace S_Nav
             destinationLocation = Preferences.Get("destLoc", null);
             floorFile = "S_Nav.TRAE1.jpg";
             EWingButtonLayout();
+
+        public NavigationPageDetail(List<MapPoint> p, string file)
+        {
+            InitializeComponent();
+            currentLocation = Preferences.Get("curLoc", null);
+
+            points = null;
+            floorFile = file;
         }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
         private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        {
-            setFloorPlan(floorFile);
-            printFloorPlans(e);
-        }
-
-        private void printFloorPlans(SKPaintSurfaceEventArgs e)
-        {
+        { 
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -84,6 +87,7 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
+            setFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             // Calls routing
@@ -97,6 +101,8 @@ namespace S_Nav
 
                 canvas.DrawPoint(points[points.Count - 1].pointLocation, redStroke);
             }
+            canvas.Save();
+
         }
 
         // try to call only when loading new floor
@@ -105,7 +111,8 @@ namespace S_Nav
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            using (Stream stream = assembly.GetManifestResourceStream(blueprint))
+            String resourceId = "S_Nav.Media.Images." + file;
+            using (Stream stream = assembly.GetManifestResourceStream(resourceId))
             {
                 image = SKBitmap.Decode(stream);
             }
@@ -390,8 +397,6 @@ namespace S_Nav
             return currentPoint;
         }
 
-        
-
         //
         // Takes a list of points and  draws lines between them
         //
@@ -409,7 +414,5 @@ namespace S_Nav
                 canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
             }
         }
-
-       
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using S_Nav.Firebase;
+using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -9,75 +10,53 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
-        LoadPoints lp = new LoadPoints();
+        // 
+        // Will likely need to move data loading to a prior blank activity to avoid user holdups
+        //
+        FirebaseConnection firebaseConnection = new FirebaseConnection();
+        List<MapPoint> points;
+        string floorFile;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
 
-            populateWingList(curWingPicker);
-            populateWingList(destWingPicker);
+            populatePicker(curLocPicker, destLocPicker);
         }
 
-        
-
-        void populateWingList(Picker picker)
+        async void populatePicker(Picker curPicker, Picker destPicker)
         {
-            List<string> roomNames = lp.loadWingNames();
+            points = await firebaseConnection.GetFloorPoints("TRAE2");
 
-            foreach (var item in roomNames)
+            foreach (var p in points)
             {
-                picker.Items.Add(item);
+                curPicker.Items.Add(p.getPointName());
+                destPicker.Items.Add(p.getPointName());
             }
+
+            curPicker.SelectedItem = curPicker.Items[0];
+            destPicker.SelectedItem = curPicker.Items[0];
         }
 
-        void populateRoomPicker(Picker picker)
+        private async void SearchRoute_Clicked(object sender, EventArgs e)
         {
-            // will definitely want to access these in a better way
-            List<string> pointNames = lp.loadRoomNames();
-
-            foreach (String name in pointNames)
-            {
-                picker.Items.Add(name);
-            }
-        }
-
-        private void SearchRoute_Clicked(object sender, EventArgs e)
-        {
-            if(destRoomPicker.SelectedItem == null || curRoomPicker.SelectedItem == null)
+            if(curLocPicker.SelectedItem == null || destLocPicker.SelectedItem == null)
             {
                 lblErrorText.Text = "ERROR - Must have a room selected in both room pickers";   
             }
             else
             {
-                Preferences.Clear(); // failsafe, shouldn't be needed
+                String curRoomText = curLocPicker.SelectedItem.ToString();
+                String destRoomText = destLocPicker.SelectedItem.ToString();
 
-                Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
-                Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
+                Preferences.Set("curLoc", curRoomText);
+                Preferences.Set("destLoc", destRoomText);
 
-                Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
-                Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
+                floorFile = "TRA-E-2.png";
 
-                bool isRouting = true;
+                NavigationPage routePage = new NavigationPage(points, floorFile);
 
-                Navigation.PushModalAsync(new NavigationPage(isRouting));
-            }
-        }
-
-        private void curWingPicker_Unfocused(object sender, FocusEventArgs e)
-        {
-            if (curWingPicker.SelectedIndex != -1)
-            {
-                populateRoomPicker(curRoomPicker);
-                curRoomPicker.IsEnabled = true;
-            }
-        }
-        private void destWingPicker_Unfocused(object sender, FocusEventArgs e)
-        {
-            if(destWingPicker.SelectedIndex != -1)
-            {
-                populateRoomPicker(destRoomPicker);
-                destRoomPicker.IsEnabled = true;
+                await Navigation.PushModalAsync(routePage);
             }
         }
     }
