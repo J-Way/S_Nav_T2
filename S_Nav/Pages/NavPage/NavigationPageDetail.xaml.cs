@@ -113,7 +113,7 @@ namespace S_Nav
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            String resourceId = "S_Nav.Media.Images." + file;
+            String resourceId = "S_Nav.Media.Images.TRA." + file;
             using (Stream stream = assembly.GetManifestResourceStream(resourceId))
             {
                 image = SKBitmap.Decode(stream);
