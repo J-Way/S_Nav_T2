@@ -11,17 +11,17 @@ namespace S_Nav
 
         private SKPoint pointLocation { get; set; }
 
-        public string getPointName()
+        public string GetPointName()
         {
             return this.point_name;
         }
 
-        public void setPointName(string name)
+        public void SetPointName(string name)
         {
             this.point_name = name;
         }
 
-        public MapPoint(String pName, SKPoint pLocation)
+        public MapPoint(string pName, SKPoint pLocation)
         {
             this.point_name = pName;
             this.pointLocation = pLocation;
@@ -32,37 +32,42 @@ namespace S_Nav
             this.pointLocation = pLocation;
         }
 
-        public MapPoint(String pName, float x, float y)
+        public MapPoint(string pName, float x, float y)
         {
             this.point_name = pName;
             this.pointLocation = new SKPoint(x, y);
+        }
+
+        public MapPoint(string name)
+        {
+            this.point_name = name;
         }
 
         public MapPoint()
         {
         }
 
-        public SKPoint getPointLocation()
+        public SKPoint GetPointLocation()
         {
             return this.pointLocation;
         }
 
 
-        public int getPointX(float width)
+        public int GetPointX(float width)
         {
             return (int) (this.pointLocation.X * width);
         }
-        public int getPointY(float height)
+        public int GetPointY(float height)
         {
             return (int) (this.pointLocation.Y * height);
         }
 
-        public void setPointY(float y)
+        public void SetPointY(float y)
         {
             this.pointLocation = new SKPoint(this.pointLocation.X, y);
         }
 
-        public void setPointX(float x)
+        public void SetPointX(float x)
         {
             this.pointLocation =new SKPoint(x, this.pointLocation.Y);
         }

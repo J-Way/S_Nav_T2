@@ -11,18 +11,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />  <!-- Errors-->
             <RowDefinition Height="80"/>  <!-- blank space -->
-            <RowDefinition Height="40" />
-            <RowDefinition Height="15" />
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="15"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5"/>
         </Grid.ColumnDefinitions>
 
         <Label Text="" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
@@ -34,7 +34,7 @@
         <Picker Title="Current wing" 
                     Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="curWingPicker"
-                HorizontalOptions="Fill"/>
+                HorizontalOptions="Fill" Unfocused="CurWingPicker_Unfocused"/>
         
         <Label Text="Current Room = " 
                    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
@@ -53,7 +53,7 @@
         <Picker Title="Destination Wing" 
                     Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="destWingPicker"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill" Unfocused="DestWingPicker_Unfocused"/>
         
         <Label Text="Destination Room = " 
                    Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"

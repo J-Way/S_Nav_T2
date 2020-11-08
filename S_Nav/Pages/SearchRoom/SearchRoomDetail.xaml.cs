@@ -1,4 +1,5 @@
 ﻿using S_Nav.Firebase;
+using S_Nav.Models;
 using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
@@ -14,28 +15,49 @@ namespace S_Nav.Pages.NavPage.Searches
         // Will likely need to move data loading to a prior blank activity to avoid user holdups
         //
         FirebaseConnection firebaseConnection = new FirebaseConnection();
-        List<MapPoint> points;
         string floorFile;
+        List<Floor> floors;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
-
-            populatePicker(curRoomPicker, destRoomPicker);
+            PopulateWingPickers();
         }
-
-        async void populatePicker(Picker curPicker, Picker destPicker)
+        
+        //////////
+        // this is called before any location data is loaded
+        private async void PopulateWingPickers()
         {
-            points = await firebaseConnection.GetFloorPoints("TRAE2");
+            floors = await firebaseConnection.GetFloors();
 
-            foreach (var p in points)
+            foreach (var item in floors)
             {
-                curPicker.Items.Add(p.getPointName());
-                destPicker.Items.Add(p.getPointName());
+                curWingPicker.Items.Add(item.GetFloorName());
+                destWingPicker.Items.Add(item.GetFloorName());
             }
 
-            curPicker.SelectedItem = curPicker.Items[0];
-            destPicker.SelectedItem = curPicker.Items[0];
+            curWingPicker.SelectedIndex = 0;
+            destWingPicker.SelectedIndex = 0;
+        }
+
+        //////////
+        // Should only be called when a valid* wing is selected
+        private void PopulateRoomPicker(Picker picker, string curFloor)
+        {
+            foreach (var item in floors)
+            {
+                // I'm not happy with this solution either
+                if(item.GetFloorName() == curFloor)
+                {
+                    var rooms = item.GetRooms();
+                    foreach (var r in rooms)
+                    {
+                        picker.Items.Add(r);
+                    }
+                }
+
+            }
+            picker.SelectedItem = picker.Items[0];
         }
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
@@ -46,17 +68,42 @@ namespace S_Nav.Pages.NavPage.Searches
             }
             else
             {
-                String curRoomText = curRoomPicker.SelectedItem.ToString();
-                String destRoomText = destRoomPicker.SelectedItem.ToString();
+                Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
+                Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
 
-                Preferences.Set("curLoc", curRoomText);
-                Preferences.Set("destLoc", destRoomText);
+                floorFile = "TRA-" + curWingPicker.SelectedItem.ToString() + ".png";
 
-                floorFile = "TRA-E-2.png";
-
-                NavigationPage routePage = new NavigationPage(points, floorFile);
+                NavigationPage routePage = new NavigationPage(floorFile);
 
                 await Navigation.PushModalAsync(routePage);
+            }
+        }
+
+        private void CurWingPicker_Unfocused(object sender, FocusEventArgs e)
+        {
+            curRoomPicker.Items.Clear();
+            if (!curWingPicker.SelectedItem.ToString().Contains("Select"))
+            {
+                curRoomPicker.IsEnabled = true;
+                PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+            }
+            else
+            {
+                curRoomPicker.IsEnabled = false;
+            }
+        }
+
+        private void DestWingPicker_Unfocused(object sender, FocusEventArgs e)
+        {
+            destRoomPicker.Items.Clear();
+            if (!destWingPicker.SelectedItem.ToString().Contains("Select"))
+            {
+                destRoomPicker.IsEnabled = true;
+                PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+            }
+            else
+            {
+                destRoomPicker.IsEnabled = false;
             }
         }
     }

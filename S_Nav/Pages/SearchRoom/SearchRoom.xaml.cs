@@ -1,4 +1,5 @@
-﻿using Xamarin.Essentials;
+﻿using System.Collections.Generic;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -15,17 +16,16 @@ namespace S_Nav.Pages.NavPage.Searches
 
         private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var item = e.SelectedItem as SearchRoomMasterMenuItem;
-            if (item == null)
+            if (!(e.SelectedItem is SearchRoomMasterMenuItem item))
                 return;
             else
             {
-                if(item.Id == 0)
+                if (item.Id == 0)
                 {
                     Preferences.Clear(); // shouldn't try to display any route
                     Navigation.PushModalAsync(new NavigationPage());
                 }
-                else if(item.Id == 1)
+                else if (item.Id == 1)
                 {
                     Navigation.PopModalAsync();
                 }

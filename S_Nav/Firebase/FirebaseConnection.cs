@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Reflection;
 using Xamarin.Essentials;
-using System.Runtime.CompilerServices;
+using S_Nav.Models;
 
 namespace S_Nav.Firebase
 {
@@ -28,7 +28,7 @@ namespace S_Nav.Firebase
 
         public FirebaseConnection()
         {
-            firebaseSetup();
+            FirebaseSetup();
 
             // these next 4 lines of code won't always need to exist concurently (wrong spelling?)
             dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
@@ -38,7 +38,7 @@ namespace S_Nav.Firebase
             firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
         }
 
-        public static void firebaseSetup()
+        public static void FirebaseSetup()
         {
             Assembly assembly = typeof(FirebaseConnection).GetTypeInfo().Assembly;
             Stream stream = assembly.GetManifestResourceStream("S_Nav.Config.Config.json");
@@ -72,7 +72,6 @@ namespace S_Nav.Firebase
             }
         }
 
-
         public async Task<Uri> GetImage(string floor)
         {
             // unless we start changing the data names / structures we can skip this
@@ -82,33 +81,60 @@ namespace S_Nav.Firebase
             return image;
         }
 
+        public async Task<List<Floor>> GetFloors()
+        {
+            var items = await firebaseDB.Child("FLOORS").OrderByKey().OnceAsync<object>();
+
+            List<Floor> floors = new List<Floor>();
+
+            foreach (var wing in items)
+            {
+                floors.Add(new Floor(wing.Key.ToString(), JsonConvert.DeserializeObject<string[]>(wing.Object.ToString())));
+            }
+
+            return floors;
+        }
+
+        public async Task<List<string>> GetFloorRooms(string floor)
+        {
+            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("ROOMS").OnceAsync<object>();
+
+            List<string> rooms = new List<string>();
+
+            foreach (var room in items)
+            {
+                rooms.Add(room.Object.ToString());
+            }
+
+            return rooms;
+        }
+
         public async Task<List<MapPoint>> GetFloorPoints(string floor)
         {
             List<MapPoint> mapPoints = new List<MapPoint>();
 
             // switch to map point list after figuring out point name issue
-            var items = await (firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>());
+            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>();
             foreach (var item in items)
             {
                 foreach (var curPoint in item.Object)
                 {
-                    var test = JObject.Parse(curPoint.ToString()).GetEnumerator();
+                    var point = JObject.Parse(curPoint.ToString()).GetEnumerator();
 
                     // This is a horrible implementation and should be replaced
-                    test.MoveNext();
-                    var name = test.Current.Value.ToString();
+                    point.MoveNext();
+                    var name = point.Current.Value.ToString();
 
-                    test.MoveNext();
-                    var x = float.Parse(test.Current.Value.ToString());
+                    point.MoveNext();
+                    var x = float.Parse(point.Current.Value.ToString());
 
-                    test.MoveNext();
-                    var y = float.Parse(test.Current.Value.ToString());
+                    point.MoveNext();
+                    var y = float.Parse(point.Current.Value.ToString());
 
                     //mapPoints.Add(new MapPoint(name, width * x, height * y));
                     mapPoints.Add(new MapPoint(name, x, y));
                 }
             }
-            items = null;
 
             return mapPoints;
         }

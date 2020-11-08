@@ -23,10 +23,10 @@ namespace S_Nav.Navigation
             destinationLocation = Preferences.Get("destLoc", null);
 
             givenPoints = _givenPoints;
-            hallPoints = givenPoints.FindAll(p => p.getPointName().Contains("hall"));
+            hallPoints = givenPoints.FindAll(p => p.GetPointName().Contains("hall"));
 
-            startPoint = givenPoints.Find(i => i.getPointName() == currentLocation);
-            endPoint = givenPoints.Find(i => i.getPointName() == destinationLocation);
+            startPoint = givenPoints.Find(i => i.GetPointName() == currentLocation);
+            endPoint = givenPoints.Find(i => i.GetPointName() == destinationLocation);
         }
 
         public List<MapPoint> calculateRoute()
@@ -42,17 +42,17 @@ namespace S_Nav.Navigation
             {
                 // Master room of first point
                 MapPoint masterOfFirstPoint =
-                    givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4));
+                    givenPoints.Find(i => i.GetPointName() == endPoint.GetPointName().Substring(0, 4));
                 routePoints.Add(masterOfFirstPoint);
 
                 // single line route, no more
-                if (masterOfFirstPoint.getPointName() == endPoint.getPointName())
+                if (masterOfFirstPoint.GetPointName() == endPoint.GetPointName())
                     return routePoints;
                 
             }
             
             // go to halls
-            MapPoint firstHallPoint = getNearestHallPoint(startPoint.getPointLocation());
+            MapPoint firstHallPoint = getNearestHallPoint(startPoint.GetPointLocation());
             routePoints.Add(firstHallPoint);
 
             addRoutePoints(ref routePoints);
@@ -66,18 +66,18 @@ namespace S_Nav.Navigation
         private void addRoutePoints(ref List<MapPoint> routePoints)
         {
             // If end point is sub room of last added point in route, don't add any more
-            if (endPoint.getPointName().Length > 4 &&
-                endPoint.getPointName().Substring(0, 4) == routePoints[routePoints.Count - 1].getPointName())
+            if (endPoint.GetPointName().Length > 4 &&
+                endPoint.GetPointName().Substring(0, 4) == routePoints[routePoints.Count - 1].GetPointName())
                 return;
 
             bool findMasterRoom = true; // of end point
 
             while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
             {
-                if (findMasterRoom && endPoint.getPointName().Length > 4)
+                if (findMasterRoom && endPoint.GetPointName().Length > 4)
                 {
                     MapPoint masterRoom = givenPoints.Find(i =>
-                        i.getPointName() == endPoint.getPointName().Substring(0, 4));
+                        i.GetPointName() == endPoint.GetPointName().Substring(0, 4));
 
                     while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
                     {
@@ -105,10 +105,10 @@ namespace S_Nav.Navigation
             foreach (MapPoint p in hallPoints)
             {
                 // Dist of hall point to start
-                float dif = SKPoint.Distance(p.getPointLocation(), start);
+                float dif = SKPoint.Distance(p.GetPointLocation(), start);
 
                 // Dist of nearest point to start
-                float cur = SKPoint.Distance(nearestPoint.getPointLocation(), start);
+                float cur = SKPoint.Distance(nearestPoint.GetPointLocation(), start);
 
                 if (dif <= cur)
                     nearestPoint = p;
@@ -120,18 +120,18 @@ namespace S_Nav.Navigation
 
         private MapPoint getNextPoint(MapPoint currentMapPoint, MapPoint endMapPoint)
         {
-            SKPoint currentPoint = currentMapPoint.getPointLocation();
-            SKPoint endPoint = endMapPoint.getPointLocation();
+            SKPoint currentPoint = currentMapPoint.GetPointLocation();
+            SKPoint endPoint = endMapPoint.GetPointLocation();
             MapPoint nextPoint = null;
 
             foreach (MapPoint p in hallPoints)
             {
-                float dif = SKPoint.Distance(p.getPointLocation(), endPoint);
+                float dif = SKPoint.Distance(p.GetPointLocation(), endPoint);
                 float cur = SKPoint.Distance(currentPoint, endPoint);
 
                 // Align check
-                if (Math.Abs(currentPoint.X - p.getPointLocation().X) < 1
-                    || Math.Abs(currentPoint.Y - p.getPointLocation().Y) < 1)
+                if (Math.Abs(currentPoint.X - p.GetPointLocation().X) < 1
+                    || Math.Abs(currentPoint.Y - p.GetPointLocation().Y) < 1)
                 {
                     if (dif <= cur)
                     {

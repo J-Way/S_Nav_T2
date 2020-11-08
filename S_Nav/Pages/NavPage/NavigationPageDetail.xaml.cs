@@ -18,8 +18,7 @@ namespace S_Nav
     public partial class NavigationPageDetail : ContentPage
     {
 
-        String currentLocation, destinationLocation;
-        List<MapPoint> points;
+        string currentLocation, destinationLocation;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -72,7 +71,6 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
 
-            points = null;
             floorFile = file;
         }
 
@@ -89,7 +87,7 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
-            setFloorPlan(floorFile);
+            SetFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             // Calls routing
@@ -109,7 +107,7 @@ namespace S_Nav
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(string file)
+        private void SetFloorPlan(string file)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
@@ -178,11 +176,11 @@ namespace S_Nav
             image.Reset();
             if (floorFile.Contains("G") && !floorFile.Contains("1"))
             {
-                showG1();
+                ShowG1();
             }
             else if (floorFile.Contains("E") && !floorFile.Contains("1"))
             {
-                showE1();
+                ShowE1();
             }
         }
 
@@ -192,60 +190,50 @@ namespace S_Nav
             image.Reset();
             if (floorFile.Contains("G") && floorFile.Contains("1"))
             {
-                showG2();
+                ShowG2();
             } else if (floorFile.Contains("E") && floorFile.Contains("1"))
             {
-                showE2();
+                ShowE2();
             }  
         }
 
         private void WingLeftClicked(object sender, EventArgs e)
         {
-            image.Reset();
-            if (floorFile.Equals("TRA-E-1.png"))
+            if (floorFile.Equals("TRA-E-2.png"))
             {
-                showG1();
-            }
-            else if (floorFile.Equals("TRA-E-2.png"))
-            {
-                showG2();
+                ShowG2();
             }
         }
 
         private void WingRightClicked(object sender, EventArgs e)
         {
-            image.Reset();
-            if (floorFile.Equals("TRA-G-1.png"))
+            if (floorFile.Equals("TRA-G-2.png"))
             {
-                showE1();
-            }
-            else if (floorFile.Equals("TRA-G-2.png"))
-            {
-                showE2();
+                ShowE2();
             }
         }
 
-        private async void showE1()
+        private async void ShowE1()
         {
             NavigationPage routePage = new NavigationPage("TRA-E-1.png");
             await Navigation.PushModalAsync(routePage);
         }
 
-        private async void showE2()
+        private async void ShowE2()
         {
             FloorUpButton.IsVisible = false;
             NavigationPage routePage = new NavigationPage("TRA-E-2.png");
             await Navigation.PushModalAsync(routePage);
         }
 
-        private async void showG1()
+        private async void ShowG1()
         {
             FloorDownButton.IsVisible = false;
             NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-1.png");
             await Navigation.PushModalAsync(routePage);
         }
 
-        private async void showG2()
+        private async void ShowG2()
         {
             FloorUpButton.IsVisible = false;
             NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-2.png");
@@ -254,16 +242,18 @@ namespace S_Nav
 
 
 
-        private List<MapPoint> calculateRoute(List<MapPoint> givenPoints)
+        private List<MapPoint> CalculateRoute(List<MapPoint> givenPoints)
         {
-            List<MapPoint> routePoints = new List<MapPoint>();
-            routePoints.Add(givenPoints.Find(i => i.getPointName() == currentLocation));
-            MapPoint endPoint = givenPoints.Find(i => i.getPointName() == destinationLocation);
+            List<MapPoint> routePoints = new List<MapPoint>
+            {
+                givenPoints.Find(i => i.GetPointName() == currentLocation)
+            };
+            MapPoint endPoint = givenPoints.Find(i => i.GetPointName() == destinationLocation);
             // since we navigate by hall points, find all of them
             List<MapPoint> hallPoints = new List<MapPoint>();
             foreach(MapPoint p in givenPoints)
             {
-                if (p.getPointName().Contains("hall"))
+                if (p.GetPointName().Contains("hall"))
                 {
                     hallPoints.Add(p);
                 }
@@ -275,20 +265,20 @@ namespace S_Nav
             {
                 // set the first map point
                 MapPoint firstHallPoint = new MapPoint(new SKPoint(0, 0));
-                firstHallPoint = getFirstHallPoint(firstHallPoint, routePoints[0].getPointLocation().X,
-                                 routePoints[0].getPointLocation().Y, hallPoints);
+                firstHallPoint = GetFirstHallPoint(firstHallPoint, routePoints[0].GetPointLocation().X,
+                                 routePoints[0].GetPointLocation().Y, hallPoints);
 
                 routePoints.Add(firstHallPoint);
                 
                 while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
                 {
                     // handle navigating to rooms which contain multiple subrooms
-                    if (findMasterRoom && endPoint.getPointName().Length > 4)
+                    if (findMasterRoom && endPoint.GetPointName().Length > 4)
                     {
-                        MapPoint masterRoom = givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4));
+                        MapPoint masterRoom = givenPoints.Find(i => i.GetPointName() == endPoint.GetPointName().Substring(0, 4));
                         while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
                         {
-                            routePoints.Add(getNextPoint(routePoints[routePoints.Count - 1], masterRoom, hallPoints));
+                            routePoints.Add(GetNextPoint(routePoints[routePoints.Count - 1], masterRoom, hallPoints));
                         }
                         routePoints.Add(masterRoom);
                     }
@@ -296,13 +286,13 @@ namespace S_Nav
                     {
                         findMasterRoom = false;
                     }
-                    routePoints.Add(getNextPoint(routePoints[routePoints.Count - 1], endPoint, hallPoints));
+                    routePoints.Add(GetNextPoint(routePoints[routePoints.Count - 1], endPoint, hallPoints));
                 }
             }
             
             else
             {
-                routePoints.Add(givenPoints.Find(i => i.getPointName() == endPoint.getPointName().Substring(0, 4)));
+                routePoints.Add(givenPoints.Find(i => i.GetPointName() == endPoint.GetPointName().Substring(0, 4)));
             }
             routePoints.Add(endPoint);
             
@@ -312,18 +302,18 @@ namespace S_Nav
         // 
         // Finds the hall point closest to start point
         //
-        MapPoint getFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
+        MapPoint GetFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
         {
             float difX, difY, curX, curY;
 
             foreach (MapPoint p in hallPoints)
             {
                 // get difference
-                difX = p.getPointLocation().X - startX;
-                difY = p.getPointLocation().Y - startY;
+                difX = p.GetPointLocation().X - startX;
+                difY = p.GetPointLocation().Y - startY;
 
-                curX = nextPoint.getPointLocation().X - startX;
-                curY = nextPoint.getPointLocation().Y - startY;
+                curX = nextPoint.GetPointLocation().X - startX;
+                curY = nextPoint.GetPointLocation().Y - startY;
 
                 // only want positive values
                 if (difX < 0)
@@ -347,19 +337,16 @@ namespace S_Nav
         }
 
         // not currently accounting for curved halls
-        MapPoint getNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
+        MapPoint GetNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
         {
             float difX, difY, curX, curY;
-
-            MapPoint nextPoint = null;
-
             foreach (MapPoint p in hallPoints)
             {
-                difX = p.getPointLocation().X - endPoint.getPointLocation().X;
-                difY = p.getPointLocation().Y - endPoint.getPointLocation().Y;
+                difX = p.GetPointLocation().X - endPoint.GetPointLocation().X;
+                difY = p.GetPointLocation().Y - endPoint.GetPointLocation().Y;
 
-                curX = currentPoint.getPointLocation().X - endPoint.getPointLocation().X;
-                curY = currentPoint.getPointLocation().Y - endPoint.getPointLocation().Y;
+                curX = currentPoint.GetPointLocation().X - endPoint.GetPointLocation().X;
+                curY = currentPoint.GetPointLocation().Y - endPoint.GetPointLocation().Y;
 
                 // only want positive values
                 if (difX < 0)
@@ -371,9 +358,11 @@ namespace S_Nav
                 if (curY < 0)
                     curY *= -1;
 
-                if (currentPoint.getPointLocation().X == p.getPointLocation().X
-                    || currentPoint.getPointLocation().Y == p.getPointLocation().Y)
+                if (currentPoint.GetPointLocation().X == p.GetPointLocation().X
+                    || currentPoint.GetPointLocation().Y == p.GetPointLocation().Y)
                 {
+
+                    MapPoint nextPoint;
                     if (difX < curX || difY < curY)
                     {
                         nextPoint = p;
@@ -396,18 +385,18 @@ namespace S_Nav
         //
         // Takes a list of points and  draws lines between them
         //
-        private void drawRoute(List<MapPoint> points, SKCanvas canvas)
+        private void DrawRoute(List<MapPoint> points, SKCanvas canvas)
         {
             for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
             {
                 if (i == 0)
                 {
-                    canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
+                    canvas.DrawPoint(points[i].GetPointLocation(), greenStroke);
                 }
                 else if (i < points.Count - 1) {
-                    canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
+                    canvas.DrawPoint(points[i].GetPointLocation(), blackStroke); // not super necessary, illustrating where points were found
                 }
-                canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
+                canvas.DrawLine(points[i].GetPointLocation(), points[i + 1].GetPointLocation(), routeColour);
             }
         }
     }
