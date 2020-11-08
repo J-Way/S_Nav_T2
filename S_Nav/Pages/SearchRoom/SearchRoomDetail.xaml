@@ -34,7 +34,8 @@
         <Picker Title="Current wing" 
                     Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="curWingPicker"
-                HorizontalOptions="Fill" Unfocused="CurWingPicker_Unfocused"/>
+                HorizontalOptions="Fill" Unfocused="CurWingPicker_Unfocused"
+                IsEnabled="False"/>
         
         <Label Text="Current Room = " 
                    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
@@ -53,7 +54,8 @@
         <Picker Title="Destination Wing" 
                     Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2"
                     x:Name="destWingPicker"
-                HorizontalOptions="Fill" Unfocused="DestWingPicker_Unfocused"/>
+                HorizontalOptions="Fill" Unfocused="DestWingPicker_Unfocused"
+                IsEnabled="False"/>
         
         <Label Text="Destination Room = " 
                    Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"

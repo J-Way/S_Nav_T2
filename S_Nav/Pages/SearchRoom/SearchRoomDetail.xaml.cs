@@ -38,6 +38,9 @@ namespace S_Nav.Pages.NavPage.Searches
 
             curWingPicker.SelectedIndex = 0;
             destWingPicker.SelectedIndex = 0;
+
+            curWingPicker.IsEnabled = true;
+            destWingPicker.IsEnabled = true;
         }
 
         //////////
@@ -82,29 +85,16 @@ namespace S_Nav.Pages.NavPage.Searches
         private void CurWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             curRoomPicker.Items.Clear();
-            if (!curWingPicker.SelectedItem.ToString().Contains("Select"))
-            {
-                curRoomPicker.IsEnabled = true;
-                PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
-            }
-            else
-            {
-                curRoomPicker.IsEnabled = false;
-            }
+            curRoomPicker.IsEnabled = true;
+            PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
         }
 
         private void DestWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             destRoomPicker.Items.Clear();
-            if (!destWingPicker.SelectedItem.ToString().Contains("Select"))
-            {
-                destRoomPicker.IsEnabled = true;
-                PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
-            }
-            else
-            {
-                destRoomPicker.IsEnabled = false;
-            }
+            destRoomPicker.IsEnabled = true;
+            PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+
         }
     }
 }

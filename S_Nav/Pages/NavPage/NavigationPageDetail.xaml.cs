@@ -123,9 +123,9 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
-            if (floorFile.Equals("S_Nav.TRAG1.png") || floorFile.Equals("S_Nav.TRAG2.png")){
+            if (floorFile.Contains("G")){
                 GWingButtonLayout();
-            } else if (floorFile.Equals("S_Nav.TRAE1.png") || floorFile.Equals("S_Nav.TRAE2.png"))
+            } else if (floorFile.Contains("E"))
             {
                 EWingButtonLayout();
             }
@@ -138,7 +138,7 @@ namespace S_Nav
             WingUpButton.IsVisible = false;
             WingRightButton.Text = "E Wing";
             WingDownButton.IsVisible = false;
-            if (floorFile.Equals("S_Nav.TRAG1.png"))
+            if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
                 FloorUpButton.IsVisible = true;
@@ -158,7 +158,7 @@ namespace S_Nav
             WingUpButton.Text = "B Wing";
             WingLeftButton.Text = "G Wing";
             
-            if (floorFile.Equals("S_Nav.TRAE1.png"))
+            if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
                 FloorUpButton.IsVisible = true;
@@ -229,14 +229,14 @@ namespace S_Nav
         private async void ShowG1()
         {
             FloorDownButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-1.png");
+            NavigationPage routePage = new NavigationPage("TRA-G-1.png");
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowG2()
         {
             FloorUpButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("S_Nav.TRA-G-2.png");
+            NavigationPage routePage = new NavigationPage("TRA-G-2.png");
             await Navigation.PushModalAsync(routePage);
         }
 
