@@ -7,8 +7,9 @@ namespace S_Nav.Navigation
 {
     class FloorPoint
     {
-        private string wing;
-        private byte floor;
+        public string wing { get; }
+        public byte floor { get; }
+
         private List<FloorPoint> connections;
 
         public FloorPoint(string cWing, byte cFloor)
@@ -42,7 +43,7 @@ namespace S_Nav.Navigation
 
         public String getName()
         {
-            return wing.ToString() + floor;
+            return wing + floor;
         }
 
         public String getFBName()
