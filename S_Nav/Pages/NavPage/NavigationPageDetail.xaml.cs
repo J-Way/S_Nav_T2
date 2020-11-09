@@ -83,12 +83,13 @@ namespace S_Nav
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
+            currentWing = Preferences.Get("curWing", null);
 
             isRouting = routing;
 
             if (isRouting)
             {
-                floorFile = "S_Nav.Media.Images.TRA." + currentWing.Substring(0, 1) + ".TRA-" + currentWing + ".png";
+                floorFile = $"TRA-{currentWing}.png";
 
                 firebaseConnection = new FirebaseConnection();
             }
