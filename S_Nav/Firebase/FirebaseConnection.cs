@@ -126,7 +126,7 @@ namespace S_Nav.Firebase
 
         public async Task<List<List<MapPoint>>> GetFloorPoints2(string floor)
         {
-            //List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
+            List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
 
             var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>();
             foreach (var item in items)
@@ -151,9 +151,9 @@ namespace S_Nav.Firebase
                     points.Add(new MapPoint(name, x, y));
                 }
 
-                //mapPoints.Add(points);
+                mapPoints.Add(points);
             }
-            return null;
+            return mapPoints;
         }
 
         public static async Task<string> AnonLogin()
