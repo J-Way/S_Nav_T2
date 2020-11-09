@@ -30,8 +30,8 @@ namespace S_Nav.Firebase
             FirebaseSetup();
 
             // these next 4 lines of code won't always need to exist concurrently
-            dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
-            fileOptions = new FirebaseStorageOptions  { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
+            dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = () => AnonLogin() };
+            fileOptions = new FirebaseStorageOptions { AuthTokenAsyncFactory = () => AnonLogin() };
 
             firebaseDB = new FirebaseClient(dbLink, dbOptions);
             firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
@@ -94,46 +94,32 @@ namespace S_Nav.Firebase
             return floors;
         }
 
-        public async Task<List<string>> GetFloorRooms(string floor)
-        {
-            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("ROOMS").OnceAsync<object>();
-
-            List<string> rooms = new List<string>();
-
-            foreach (var room in items)
-            {
-                rooms.Add(room.Object.ToString());
-            }
-
-            return rooms;
-        }
-
         public async Task<List<MapPoint>> GetFloorPoints(string floor)
         {
             List<MapPoint> mapPoints = new List<MapPoint>();
 
             // switch to map point list after figuring out point name issue
-            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>();
-            foreach (var item in items)
-            {
-                foreach (var curPoint in item.Object)
-                {
-                    var point = JObject.Parse(curPoint.ToString()).GetEnumerator();
-
-                    // This is a horrible implementation and should be replaced
-                    point.MoveNext();
-                    var name = point.Current.Value.ToString();
-
-                    point.MoveNext();
-                    var x = float.Parse(point.Current.Value.ToString());
-
-                    point.MoveNext();
-                    var y = float.Parse(point.Current.Value.ToString());
-
-                    //mapPoints.Add(new MapPoint(name, width * x, height * y));
-                    mapPoints.Add(new MapPoint(name, x, y));
-                }
-            }
+            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<object>();
+            //foreach (var item in items)
+            //{
+            //    foreach (var curPoint in item.Object)
+            //    {
+            //        var point = JObject.Parse(curPoint.ToString()).GetEnumerator();
+            //
+            //        // This is a horrible implementation and should be replaced
+            //        point.MoveNext();
+            //        var name = point.Current.Value.ToString();
+            //
+            //        point.MoveNext();
+            //        var x = float.Parse(point.Current.Value.ToString());
+            //
+            //        point.MoveNext();
+            //        var y = float.Parse(point.Current.Value.ToString());
+            //
+            //        //mapPoints.Add(new MapPoint(name, width * x, height * y));
+            //        mapPoints.Add(new MapPoint(name, x, y));
+            //    }
+            //}
 
             return mapPoints;
         }
@@ -168,6 +154,13 @@ namespace S_Nav.Firebase
                 mapPoints.Add(points);
             }
             return mapPoints;
+        }
+
+        public static async Task<string> AnonLogin()
+        {
+            var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyDlrs12gBooCtCtg6SXVG2xP3BE-jYXk7g"));
+            var auth = await authProvider.SignInAnonymouslyAsync();
+            return auth.FirebaseToken;
         }
 
         public static async Task<string> CheckToken(string apiKey, string debugMail, string debugPw)
