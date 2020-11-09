@@ -98,8 +98,8 @@ namespace S_Nav
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
-        private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        { 
+        private async void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -117,10 +117,10 @@ namespace S_Nav
                 {
                     Console.WriteLine("Time to route!");
 
-                    List<MapPoint> routePoints = StartRouting().Result;
-
+                    List<MapPoint> routePoints = await StartRouting();
+            
                     DrawRoute(routePoints, canvas);
-
+            
                     canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
                 }
             }
@@ -144,7 +144,7 @@ namespace S_Nav
                 ("hallGE", "stairsBottom"),
                 ("stairsBottom", "G101")
             };
-
+            
             for (int i = 0; i < cwPoints.Count; i++)
             {
                 Console.WriteLine($"----- [FP] {cwPoints[i].getName()}");
