@@ -89,7 +89,7 @@ namespace S_Nav
 
             if (isRouting)
             {
-                floorFile = "TRA-"  + currentWing + ".png";
+                floorFile = $"TRA-{currentWing}.png";
 
                 firebaseConnection = new FirebaseConnection();
             }
