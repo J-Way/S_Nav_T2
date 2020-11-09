@@ -1,16 +1,17 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.ComponentModel;
-using S_Nav.Navigation;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
-
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
+using System.Threading.Tasks;
+using S_Nav.Firebase;
+using S_Nav.Navigation;
 
 namespace S_Nav
 {
@@ -22,6 +23,8 @@ namespace S_Nav
 
         string currentWing, currentLocation, destinationWing, destinationLocation;
         bool isRouting = false;
+
+        private FirebaseConnection firebaseConnection;
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -52,49 +55,42 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
+
         // image being loaded
         SKBitmap image;
 
         string floorFile;
 
-        //
-        // placeholder constructor, only called in direct page access
-        // i.e. no route data given
-        //
+        // creates detail page
+        // dont touch this
         public NavigationPageDetail()
         {
             InitializeComponent();
-
-            // Get("x", null), null is placeholder value if preference not found
-            currentWing = Preferences.Get("curWing", null);
             currentLocation = Preferences.Get("curLoc", null);
-            destinationWing = Preferences.Get("destWing", null);
             destinationLocation = Preferences.Get("destLoc", null);
-
-            floorFile = "S_Nav.Media.Images.TRA.E.TRA-E-1.png";
+            floorFile = "TRA-E-2.png";
+            EWingButtonLayout();
         }
 
-        public NavigationPageDetail(string file)
+        public NavigationPageDetail(List<MapPoint> p, string file)
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
         }
-
+        
         public NavigationPageDetail(bool routing)
         {
             InitializeComponent();
-
-            currentWing = Preferences.Get("curWing", null);
             currentLocation = Preferences.Get("curLoc", null);
-            destinationWing = Preferences.Get("destWing", null);
-            destinationLocation = Preferences.Get("destLoc", null);
 
             isRouting = routing;
 
             if (isRouting)
             {
                 floorFile = "S_Nav.Media.Images.TRA." + currentWing.Substring(0, 1) + ".TRA-" + currentWing + ".png";
+
+                firebaseConnection = new FirebaseConnection();
             }
         }
 
@@ -102,13 +98,7 @@ namespace S_Nav
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
         private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        {
-            setFloorPlan(floorFile);
-            printFloorPlans(e);
-        }
-
-        private void printFloorPlans(SKPaintSurfaceEventArgs e)
-        {
+        { 
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
@@ -117,84 +107,210 @@ namespace S_Nav
 
             canvas.Scale(1, 1);
 
+            SetFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
             if (isRouting)
             {
-                LoadPoints pointLoader = new LoadPoints(); // TODO: Replace point loader to Fb
-                
-                // Calls routing
                 if (currentLocation != null)
                 {
-                    List<MapPoint> routePoints = new List<MapPoint>();
+                    Console.WriteLine("Time to route!");
 
-                    // TODO: Replace floor point loader to Firebase fetch
-                    CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
-                    List<FloorPoint> cwPoints = cwRoute.calculateRoute();
+                    List<MapPoint> routePoints = StartRouting().Result;
 
-                    foreach (FloorPoint fp in cwPoints)
-                    {
-                        // TODO: Load Points from Firebase
-                        // use arg: fp.getName()
-                        // return examples: "E2", "AA1"
-                        List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
-                        FloorRoute route = new FloorRoute(mapPoints);
-                        routePoints.AddRange(route.calculateRoute());
-                    }
+                    DrawRoute(routePoints, canvas);
 
-                    drawRoute(routePoints, canvas);
-
-                    canvas.DrawPoint(routePoints[routePoints.Count - 1].pointLocation, redStroke);
+                    canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
                 }
             }
+            canvas.Save();
+        }
+
+        private async Task<List<MapPoint>> StartRouting()
+        {
+            List<MapPoint> routePoints = new List<MapPoint>();
+
+            // TODO: Replace floor point loader to Firebase fetch
+            CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
+            List<FloorPoint> cwPoints = cwRoute.calculateRoute();
+            Console.WriteLine("Multi floors routed");
+
+            // TODO: Remove temp
+            var routePairs = new List<(string src, string dst)>
+            {
+                ("E101", "stairsTopLeft"),
+                ("stairsTopLeft", "hallEG"),
+                ("hallGE", "stairsBottom"),
+                ("stairsBottom", "G101")
+            };
+
+            for (int i = 0; i < cwPoints.Count; i++)
+            {
+                Console.WriteLine($"----- [FP] {cwPoints[i].getName()}");
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2(cwPoints[i].getFBName());
+                FloorRoute route = new FloorRoute(mapPoints, routePairs[i].src, routePairs[i].dst);
+                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+            }
+
+            return routePoints;
         }
 
         // try to call only when loading new floor
         // (currently the same static image)
-        private void setFloorPlan(string blueprint)
+        private void SetFloorPlan(string file)
         {
             // Bitmap
             Assembly assembly = GetType().GetTypeInfo().Assembly;
-            using (Stream stream = assembly.GetManifestResourceStream(blueprint))
+            String resourceId = "S_Nav.Media.Images.TRA." + file;
+            using (Stream stream = assembly.GetManifestResourceStream(resourceId))
             {
                 image = SKBitmap.Decode(stream);
             }
         }
 
-        private async void DownClicked(object sender, EventArgs e)
-        {
-            Console.WriteLine("Down Clicked");
-            image.Reset();
 
-            NavigationPage routePage = new NavigationPage("S_Nav.Media.Images.TRA.E.TRA-E-1.png");
-            await Navigation.PushModalAsync(routePage);
+        public NavigationPageDetail(string file)
+        {
+            InitializeComponent();
+            currentLocation = Preferences.Get("curLoc", null);
+            floorFile = file;
+            if (floorFile.Contains("G")){
+                GWingButtonLayout();
+            } else if (floorFile.Contains("E"))
+            {
+                EWingButtonLayout();
+            }
         }
 
-        private async void UpClicked(object sender, EventArgs e)
+        //GButtons View Function
+        private void GWingButtonLayout()
+        {
+            WingLeftButton.IsVisible = false;
+            WingUpButton.IsVisible = false;
+            WingRightButton.Text = "E Wing";
+            WingDownButton.IsVisible = false;
+            if (floorFile.Contains("1"))
+            {
+                FloorDownButton.IsVisible = false;
+                FloorUpButton.IsVisible = true;
+            } else {
+                FloorDownButton.IsVisible = true;
+                FloorUpButton.IsVisible = false;
+            }
+        }
+
+        //EButton View Function
+        private void EWingButtonLayout()
+        {
+            WingLeftButton.IsVisible = true;
+            WingUpButton.IsVisible = true;
+            WingDownButton.IsVisible = false;
+            WingRightButton.Text = "C Wing";
+            WingUpButton.Text = "B Wing";
+            WingLeftButton.Text = "G Wing";
+            
+            if (floorFile.Contains("1"))
+            {
+                FloorDownButton.IsVisible = false;
+                FloorUpButton.IsVisible = true;
+            }
+            else
+            {
+                FloorDownButton.IsVisible = true;
+                FloorUpButton.IsVisible = false;
+
+            }
+        }
+
+        private void DownClicked(object sender, EventArgs e)
+        {
+            image.Reset();
+            if (floorFile.Contains("G") && !floorFile.Contains("1"))
+            {
+                ShowG1();
+            }
+            else if (floorFile.Contains("E") && !floorFile.Contains("1"))
+            {
+                ShowE1();
+            }
+        }
+
+        private void UpClicked(object sender, EventArgs e)
         {
             Console.WriteLine("Up Clicked");
             image.Reset();
+            if (floorFile.Contains("G") && floorFile.Contains("1"))
+            {
+                ShowG2();
+            } else if (floorFile.Contains("E") && floorFile.Contains("1"))
+            {
+                ShowE2();
+            }  
+        }
 
-            NavigationPage routePage = new NavigationPage("S_Nav.Media.Images.TRA.E.TRA-E-2.png");
+        private void WingLeftClicked(object sender, EventArgs e)
+        {
+            if (floorFile.Equals("TRA-E-2.png"))
+            {
+                ShowG2();
+            }
+        }
+
+        private void WingRightClicked(object sender, EventArgs e)
+        {
+            if (floorFile.Equals("TRA-G-2.png"))
+            {
+                ShowE2();
+            }
+        }
+
+        private async void ShowE1()
+        {
+            NavigationPage routePage = new NavigationPage("TRA-E-1.png");
             await Navigation.PushModalAsync(routePage);
         }
-      
+
+        private async void ShowE2()
+        {
+            FloorUpButton.IsVisible = false;
+            NavigationPage routePage = new NavigationPage("TRA-E-2.png");
+            await Navigation.PushModalAsync(routePage);
+        }
+
+        private async void ShowG1()
+        {
+            FloorDownButton.IsVisible = false;
+            NavigationPage routePage = new NavigationPage("TRA-G-1.png");
+            await Navigation.PushModalAsync(routePage);
+        }
+
+        private async void ShowG2()
+        {
+            FloorUpButton.IsVisible = false;
+            NavigationPage routePage = new NavigationPage("TRA-G-2.png");
+            await Navigation.PushModalAsync(routePage);
+        }
         //
         // Takes a list of points and  draws lines between them
         //
-        private void drawRoute(List<MapPoint> points, SKCanvas canvas)
+        private void DrawRoute(List<MapPoint> points, SKCanvas canvas)
         {
             for (int i = 0; i < points.Count - 1; i++) // count produces higher value than max index
             {
                 if (i == 0)
                 {
-                    canvas.DrawPoint(points[i].getPointLocation(), greenStroke);
+                    canvas.DrawPoint(points[i].GetPointLocation(), greenStroke);
                 }
                 else if (i < points.Count - 1) {
-                    canvas.DrawPoint(points[i].getPointLocation(), blackStroke); // not super necessary, illustrating where points were found
+                    canvas.DrawPoint(points[i].GetPointLocation(), blackStroke); // not super necessary, illustrating where points were found
                 }
-                canvas.DrawLine(points[i].getPointLocation(), points[i + 1].getPointLocation(), routeColour);
+                canvas.DrawLine(points[i].GetPointLocation(), points[i + 1].GetPointLocation(), routeColour);
             }
-        }     
+        }
     }
 }

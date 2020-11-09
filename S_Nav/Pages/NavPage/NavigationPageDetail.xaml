@@ -18,26 +18,61 @@
 
         <skia:SKCanvasView x:Name="canvasView"
                        PaintSurface="canvas_PaintSurface"
-                         Grid.Row="0"
-                           Grid.RowSpan="3"
+                         Grid.Row="1"
+                           Grid.RowSpan="9"
                            Grid.Column="0"
-                           Grid.ColumnSpan="2"/>
-        <Button Text="Move Down a Floor"
+                           Grid.ColumnSpan="3"/>
+
+        <Button x:Name="WingUpButton"
+            Text=""
                 VerticalOptions="CenterAndExpand"
                 HorizontalOptions="Center"
-                  Grid.Row="3"
+                  Grid.Row="0"
+                  Grid.Column="0"
+                 Grid.ColumnSpan="3"/>
+
+        <Button x:Name="WingDownButton" 
+            Text=""
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                  Grid.Row="10"
+                  Grid.Column="0"
+                 Grid.ColumnSpan="3"/>
+
+        <Button x:Name="WingRightButton" 
+            Text=""
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                  Grid.Row="0"
+                   Grid.Column="2"
+                Clicked="WingRightClicked"/>
+
+        <Button x:Name="WingLeftButton" 
+            Text=""
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                  Grid.Row="0"
+                  Grid.Column="0" 
+                Clicked="WingLeftClicked"/>
+
+
+        <Button x:Name="FloorDownButton"
+            Text="Move Down a Floor"
+                VerticalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
+                  Grid.Row="11"
                    Grid.Column="0"
                 Clicked="DownClicked"/>
 
-        <Button Text="Move Up a Floor"
+        <Button x:Name="FloorUpButton"
+            Text="Move Up a Floor"
                 VerticalOptions="CenterAndExpand"
                 HorizontalOptions="Center"
-                  Grid.Row="3"
+                  Grid.Row="11"
                    Grid.Column="1"
+                Grid.ColumnSpan="2"
                 Clicked="UpClicked"/>
-
-        <Label Text="Route Details Placeholder"
-               Grid.Row="4"
-               Grid.Column="0"/>
+        
+       
     </Grid>
 </ContentPage>

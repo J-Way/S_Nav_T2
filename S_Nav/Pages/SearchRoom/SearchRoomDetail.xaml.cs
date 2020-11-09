@@ -1,4 +1,6 @@
-﻿using System;
+﻿using S_Nav.Firebase;
+using S_Nav.Models;
+using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -9,75 +11,102 @@ namespace S_Nav.Pages.NavPage.Searches
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SearchRoomDetail : ContentPage
     {
-        LoadPoints lp = new LoadPoints();
+        // 
+        // Will likely need to move data loading to a prior blank activity to avoid user holdups
+        //
+        FirebaseConnection firebaseConnection = new FirebaseConnection();
+        string floorFile;
+        List<Floor> floors;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
 
-            populateWingList(curWingPicker);
-            populateWingList(destWingPicker);
+            // PopulateRoomPicker(curWingPicker, curRoomPicker, destWingPicker, destRoomPicker);
+            PopulateWingPickers();
         }
 
-        
-
-        void populateWingList(Picker picker)
+        //////////
+        // this is called before any location data is loaded
+        async void PopulateWingPickers()
         {
-            List<string> roomNames = lp.loadWingNames();
+            floors = await firebaseConnection.GetFloors();
 
-            foreach (var item in roomNames)
+            foreach (var item in floors)
             {
-                picker.Items.Add(item);
+                curWingPicker.Items.Add(item.GetFloorName());
+                destWingPicker.Items.Add(item.GetFloorName());
             }
+
+            curWingPicker.SelectedIndex = 0;
+            destWingPicker.SelectedIndex = 0;
+
+            curWingPicker.IsEnabled = true;
+            destWingPicker.IsEnabled = true;
         }
 
-        void populateRoomPicker(Picker picker)
+        async void PopulateRoomPicker(Picker picker, string curFloor)
         {
-            // will definitely want to access these in a better way
-            List<string> pointNames = lp.loadRoomNames();
-
-            foreach (String name in pointNames)
+            foreach (var item in floors)
             {
-                picker.Items.Add(name);
+                // I'm not happy with this solution either
+                if (item.GetFloorName() == curFloor)
+                {
+                    var rooms = item.GetRooms();
+                    foreach (var r in rooms)
+                    {
+                        picker.Items.Add(r);
+                    }
+                }
+
             }
+            picker.SelectedItem = picker.Items[0];
         }
 
-        private void SearchRoute_Clicked(object sender, EventArgs e)
+        private async void SearchRoute_Clicked(object sender, EventArgs e)
         {
-            if(destRoomPicker.SelectedItem == null || curRoomPicker.SelectedItem == null)
+            if(curRoomPicker.SelectedItem == null || destRoomPicker.SelectedItem == null)
             {
                 lblErrorText.Text = "ERROR - Must have a room selected in both room pickers";   
             }
             else
             {
-                Preferences.Clear(); // failsafe, shouldn't be needed
-
-                Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
                 Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
-
-                Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
                 Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
 
-                bool isRouting = true;
+                floorFile = $"TRA-{curWingPicker.SelectedItem.ToString()}.png";
 
-                Navigation.PushModalAsync(new NavigationPage(isRouting));
+                NavigationPage routePage = new NavigationPage(floorFile);
+
+                await Navigation.PushModalAsync(routePage);
             }
         }
 
-        private void curWingPicker_Unfocused(object sender, FocusEventArgs e)
+        private void CurWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
-            if (curWingPicker.SelectedIndex != -1)
+            curRoomPicker.Items.Clear();
+            if (!curWingPicker.SelectedItem.ToString().Contains("Select"))
             {
-                populateRoomPicker(curRoomPicker);
                 curRoomPicker.IsEnabled = true;
+                PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+            }
+            else
+            {
+                curRoomPicker.IsEnabled = false;
             }
         }
-        private void destWingPicker_Unfocused(object sender, FocusEventArgs e)
+
+        private void DestWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
-            if(destWingPicker.SelectedIndex != -1)
+            destRoomPicker.Items.Clear();
+            if (!destWingPicker.SelectedItem.ToString().Contains("Select"))
             {
-                populateRoomPicker(destRoomPicker);
                 destRoomPicker.IsEnabled = true;
+                PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+            }
+            else
+            {
+                destRoomPicker.IsEnabled = false;
             }
         }
     }

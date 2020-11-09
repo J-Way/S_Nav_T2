@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -10,17 +11,13 @@ namespace S_Nav
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class NavigationPage : MasterDetailPage
     {
+        // if this is called, something is going to get borked
+        // find workaround for its single reference
         public NavigationPage()
         {
             InitializeComponent();
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-        }
-
-        public NavigationPage(bool isRouting)
-        {
-            InitializeComponent();
-            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail(isRouting);
+            Detail = new NavigationPageDetail();
         }
 
         public NavigationPage(string floorFile)
@@ -29,6 +26,14 @@ namespace S_Nav
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
             Detail = new NavigationPageDetail(floorFile);
         }
+
+        public NavigationPage(List<MapPoint> points, string floorFile)
+        {
+            InitializeComponent();
+            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
+            Detail = new NavigationPageDetail(points, floorFile);
+        }
+
 
         private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {

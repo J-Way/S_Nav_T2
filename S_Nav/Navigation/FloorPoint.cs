@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using S_Nav.Models;
 
 namespace S_Nav.Navigation
 {
@@ -14,19 +15,39 @@ namespace S_Nav.Navigation
         {
             wing = cWing;
             floor = cFloor;
+            connections = new List<FloorPoint>();
         }
 
         public FloorPoint(string floorName)
         {
-            if (floorName.Length < 2 || floorName.Length > 3)
-                throw new ArgumentException($"Floor name [{floorName}] is not 2-3 characters");
-            wing = floorName.Substring(0, floorName.Length - 1);
-            floor = Convert.ToByte(floorName[floorName.Length - 1]);
+            if (floorName.Length < 3 || floorName.Length > 4)
+                throw new ArgumentException($"Floor name [{floorName}] is not 3-4 characters");
+
+            string[] fn = floorName.Split('-');
+            wing = fn[0];
+            floor = Convert.ToByte(fn[1]);
+            connections = new List<FloorPoint>();
+        }
+
+        public FloorPoint(Floor _floor)
+        {
+            string floorName = _floor.GetFloorName();
+            if (floorName.Length < 3 || floorName.Length > 4)
+                throw new ArgumentException($"Floor name [{floorName}] is not 3-4 characters");
+
+            string[] fn = floorName.Split('-');
+            wing = fn[0];
+            floor = Convert.ToByte(fn[1]);
         }
 
         public String getName()
         {
             return wing.ToString() + floor;
+        }
+
+        public String getFBName()
+        {
+            return $"TRA-{wing}-{floor}";
         }
 
         public List<FloorPoint> getConnections()

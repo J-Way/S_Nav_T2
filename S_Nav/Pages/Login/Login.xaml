@@ -26,16 +26,6 @@
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
 
-            <Label Text="ERROR - Can't Connect with server, Login unavailable" Grid.Row="0" Grid.Column="0"
-                   Grid.ColumnSpan="4" FontAttributes="Bold" HorizontalOptions="CenterAndExpand"
-                   FontSize="Medium" x:Name="lblErrorText"
-                   TextColor="Red"/>
-            <TableView>
-                <TableRoot>
-                    <TableSection></TableSection>
-                </TableRoot>
-            </TableView>
-
             <Label Text="Login" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
                    FontSize="Large" HorizontalOptions="CenterAndExpand" FontAttributes="Bold"
                    TextDecorations="Underline"/>
