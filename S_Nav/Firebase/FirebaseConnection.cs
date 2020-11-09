@@ -10,9 +10,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Reflection;
 using Xamarin.Essentials;
-using System.Runtime.CompilerServices;
 using S_Nav.Models;
-using S_Nav.Navigation;
 
 namespace S_Nav.Firebase
 {

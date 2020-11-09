@@ -72,11 +72,10 @@ namespace S_Nav.Pages.NavPage.Searches
             else
             {
                 Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
+                Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
                 Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
 
-                floorFile = $"TRA-{curWingPicker.SelectedItem.ToString()}.png";
-
-                NavigationPage routePage = new NavigationPage(floorFile);
+                NavigationPage routePage = new NavigationPage(true);
 
                 await Navigation.PushModalAsync(routePage);
             }

@@ -19,6 +19,12 @@ namespace S_Nav
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
             Detail = new NavigationPageDetail();
         }
+        public NavigationPage(bool isRouting)
+        {
+            InitializeComponent();
+            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
+            Detail = new NavigationPageDetail(isRouting);
+        }
 
         public NavigationPage(string floorFile)
         {
