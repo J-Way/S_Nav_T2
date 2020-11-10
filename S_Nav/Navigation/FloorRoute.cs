@@ -14,6 +14,7 @@ namespace S_Nav.Navigation
         private List<MapPoint> roomPoints;
         private List<MapPoint> traversalPoints;
         private List<MapPoint> hallwayPoints;
+        private List<MapPoint> wingConnector;
 
         private MapPoint startPoint;
         private MapPoint endPoint;
@@ -28,6 +29,9 @@ namespace S_Nav.Navigation
             traversalPoints = _givenPoints[2];
             hallwayPoints = _givenPoints[3];
 
+            if(_givenPoints.Count > 4)
+                wingConnector = _givenPoints[4];
+
             startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
             endPoint = roomPoints.Find(i => i.GetPointName() == destinationLocation);
 
@@ -35,10 +39,17 @@ namespace S_Nav.Navigation
             if(startPoint == null)
             {
                 startPoint = traversalPoints.Find(i => i.GetPointName() == currentLocation);
+
+                // yes this is not optimal, I'm aware
+                if (startPoint == null)
+                    startPoint = wingConnector.Find(i => i.GetPointName() == currentLocation);
             }
             if(endPoint == null)
             {
                 endPoint = traversalPoints.Find(i => i.GetPointName() == destinationLocation);
+
+                if (endPoint == null)
+                    endPoint = wingConnector.Find(i => i.GetPointName() == destinationLocation);
             }
         }
 

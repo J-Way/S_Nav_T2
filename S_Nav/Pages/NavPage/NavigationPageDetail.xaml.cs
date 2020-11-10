@@ -195,10 +195,17 @@ namespace S_Nav
                 List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
                 foreach (var item in cwRoute.getFloorPoints())
                 {
-                    if(currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
+                    if(currentWing.Substring(0,1) != destinationWing.Substring(0,1) && currentWing.Contains("2"))
+                    {
+                        destinationLocation = mapPoints[4][0].GetPointName();
+                        Preferences.Set("curLoc", destinationLocation);
+                        break;
+                    }
+                    else if (currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
                     {
                         destinationLocation = mapPoints[2][0].GetPointName();
                         Preferences.Set("curLoc", destinationLocation);
+                        break;
                     }
                 }
 
@@ -301,7 +308,6 @@ namespace S_Nav
         private void GWingButtonLayout()
         {
             WingLeftButton.IsVisible = false;
-            WingUpButton.IsVisible = false;
             WingRightButton.Text = "E Wing";
             WingDownButton.IsVisible = false;
             if (floorFile.Contains("1"))
@@ -318,10 +324,8 @@ namespace S_Nav
         private void EWingButtonLayout()
         {
             WingLeftButton.IsVisible = true;
-            WingUpButton.IsVisible = true;
             WingDownButton.IsVisible = false;
             WingRightButton.Text = "C Wing";
-            WingUpButton.Text = "B Wing";
             WingLeftButton.Text = "G Wing";
             
             if (floorFile.Contains("1"))
