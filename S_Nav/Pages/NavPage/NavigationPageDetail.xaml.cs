@@ -307,9 +307,7 @@ namespace S_Nav
         //GButtons View Function
         private void GWingButtonLayout()
         {
-            WingLeftButton.IsVisible = false;
-            WingRightButton.Text = "E Wing";
-            WingDownButton.IsVisible = false;
+            // These might not actually work
             if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
@@ -323,11 +321,7 @@ namespace S_Nav
         //EButton View Function
         private void EWingButtonLayout()
         {
-            WingLeftButton.IsVisible = true;
-            WingDownButton.IsVisible = false;
-            WingRightButton.Text = "C Wing";
-            WingLeftButton.Text = "G Wing";
-            
+            // I don't know if these actually work
             if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
