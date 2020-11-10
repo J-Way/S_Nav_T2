@@ -76,6 +76,7 @@ namespace S_Nav.Pages.NavPage.Searches
                 Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
                 Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
                 Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
+                Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
 
                 NavigationPage routePage = new NavigationPage(true);
 

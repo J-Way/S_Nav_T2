@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace S_Nav.Navigation
@@ -29,6 +30,16 @@ namespace S_Nav.Navigation
 
             startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
             endPoint = roomPoints.Find(i => i.GetPointName() == destinationLocation);
+
+            // if wings are different find traversal point
+            if(startPoint == null)
+            {
+                startPoint = traversalPoints.Find(i => i.GetPointName() == currentLocation);
+            }
+            if(endPoint == null)
+            {
+                endPoint = traversalPoints.Find(i => i.GetPointName() == destinationLocation);
+            }
         }
 
         public List<MapPoint> calculateRoute()

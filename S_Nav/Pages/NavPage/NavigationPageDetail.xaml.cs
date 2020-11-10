@@ -22,9 +22,17 @@ namespace S_Nav
     {
 
         string currentWing, currentLocation, destinationWing, destinationLocation;
-        bool isRouting = false;
+        bool isRouting = false, isDrawing = false;
 
         private FirebaseConnection firebaseConnection;
+
+        // image being loaded
+        SKBitmap image;
+
+        string floorFile;
+
+        List<MapPoint> pointsToDraw;
+
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -55,12 +63,6 @@ namespace S_Nav
             Color = SKColors.IndianRed
         };
 
-
-        // image being loaded
-        SKBitmap image;
-
-        string floorFile;
-
         // creates detail page
         // dont touch this
         public NavigationPageDetail()
@@ -72,11 +74,16 @@ namespace S_Nav
             EWingButtonLayout();
         }
 
-        public NavigationPageDetail(List<MapPoint> p, string file)
+        public NavigationPageDetail(List<MapPoint> p)
         {
             InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
+            currentWing = Preferences.Get("curWing", null);
+
+            isRouting = false;
+            isDrawing = true;
+            floorFile = $"TRA-{currentWing}.png";
+
+            pointsToDraw = p;
         }
         
         public NavigationPageDetail(bool routing)
@@ -84,6 +91,8 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             currentWing = Preferences.Get("curWing", null);
+            destinationWing = Preferences.Get("destWing", null);
+            destinationLocation = Preferences.Get("destLoc", null);
 
             isRouting = routing;
 
@@ -92,6 +101,20 @@ namespace S_Nav
                 floorFile = $"TRA-{currentWing}.png";
 
                 firebaseConnection = new FirebaseConnection();
+            }
+        }
+        public NavigationPageDetail(string file)
+        {
+            InitializeComponent();
+            currentLocation = Preferences.Get("curLoc", null);
+            floorFile = file;
+            if (floorFile.Contains("G"))
+            {
+                GWingButtonLayout();
+            }
+            else if (floorFile.Contains("E"))
+            {
+                EWingButtonLayout();
             }
         }
 
@@ -106,6 +129,9 @@ namespace S_Nav
             int width = e.Info.Width; // screen dimensions
             int height = e.Info.Height;
 
+            Preferences.Set("screen_width", width);
+            Preferences.Set("screen_height", height);
+
             canvas.Scale(1, 1);
 
             SetFloorPlan(floorFile);
@@ -118,13 +144,26 @@ namespace S_Nav
                     Console.WriteLine("Time to route!");
 
                     List<MapPoint> routePoints = await StartRouting();
-            
-                    DrawRoute(routePoints, canvas);
-            
-                    canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
+
+                    NavigationPage drawPage = new NavigationPage(routePoints);
+
+                    await Navigation.PushModalAsync(drawPage);
+
+                    //DrawRoute(routePoints, canvas);
+                    //
+                    //canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
                 }
             }
-            canvas.Save();
+            else if (isDrawing)
+            {
+                DrawRoute(pointsToDraw, canvas);
+
+                canvas.DrawPoint(pointsToDraw[pointsToDraw.Count - 1].GetPointLocation(), redStroke);
+
+                isDrawing = false;
+
+                canvas.Save();
+            }
         }
 
         private async Task<List<MapPoint>> StartRouting()
@@ -133,9 +172,56 @@ namespace S_Nav
 
             // TODO: Replace floor point loader to Firebase fetch
             CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
-            List<FloorPoint> cwPoints = cwRoute.calculateRoute();
+            //List<FloorPoint> cwPoints = cwRoute.calculateRoute();
 
+            // can change to cwRoute start / end later
+            if (currentWing.Equals(destinationWing))
+            {
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-"+currentWing);
+
+                FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
+                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+
+                return routePoints;
+            }
+            else if (!currentWing.Equals(destinationWing))
+            {
+
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
+                foreach (var item in cwRoute.getFloorPoints())
+                {
+                    if(currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
+                    {
+                        destinationLocation = mapPoints[2][0].GetPointName();
+                        Preferences.Set("curLoc", destinationLocation);
+                    }
+                }
+
+                FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
+                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+
+                isRouting = false;
+
+                return routePoints;
+            }
+
+
+            //
+            // I don't really know what you're trying here, let's revert back to it when 
+            // we aren't as time contrained - Jordan.
+            //
             // TODO: Extract to FloorRoute
+            /*
             for (int i = 0; i < cwPoints.Count; i++)
             {
                 FloorPoint cwp = cwPoints[i];
@@ -194,7 +280,7 @@ namespace S_Nav
                 }
                 routePoints.AddRange(floorRoutePoints);
             }
-
+            */
             return routePoints;
         }
 
@@ -208,20 +294,6 @@ namespace S_Nav
             using (Stream stream = assembly.GetManifestResourceStream(resourceId))
             {
                 image = SKBitmap.Decode(stream);
-            }
-        }
-
-
-        public NavigationPageDetail(string file)
-        {
-            InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
-            if (floorFile.Contains("G")){
-                GWingButtonLayout();
-            } else if (floorFile.Contains("E"))
-            {
-                EWingButtonLayout();
             }
         }
 
@@ -309,28 +381,36 @@ namespace S_Nav
 
         private async void ShowE1()
         {
-            NavigationPage routePage = new NavigationPage("TRA-E-1.png");
+            Preferences.Set("curWing", "E-1");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowE2()
         {
             FloorUpButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-E-2.png");
+            Preferences.Set("curWing", "E-2");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowG1()
         {
             FloorDownButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-G-1.png");
+            Preferences.Set("curWing", "G-1");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowG2()
         {
             FloorUpButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-G-2.png");
+            Preferences.Set("curWing", "G-2");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
         //

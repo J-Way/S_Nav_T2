@@ -24,6 +24,8 @@ namespace S_Nav.Navigation
                 p.getName() == destLoc.Substring(0, 2));
         }
 
+        public List<FloorPoint> getFloorPoints() { return this.floorPoints; }
+
         public List<FloorPoint> calculateRoute()
         {
             Queue<List<FloorPoint>> queue = new Queue<List<FloorPoint>>();

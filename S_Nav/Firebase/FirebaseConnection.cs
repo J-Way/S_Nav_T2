@@ -129,6 +129,10 @@ namespace S_Nav.Firebase
             List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
 
             var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>();
+
+            int height = Preferences.Get("screen_height", 0);
+            int width = Preferences.Get("screen_width", 0);
+
             foreach (var item in items)
             {
                 List<MapPoint> points = new List<MapPoint>();
@@ -142,10 +146,10 @@ namespace S_Nav.Firebase
                     var name = test.Current.Value.ToString();
 
                     test.MoveNext();
-                    var x = float.Parse(test.Current.Value.ToString());
+                    var x = width * float.Parse(test.Current.Value.ToString());
 
                     test.MoveNext();
-                    var y = float.Parse(test.Current.Value.ToString());
+                    var y = height * float.Parse(test.Current.Value.ToString());
 
                     //mapPoints.Add(new MapPoint(name, width * x, height * y));
                     points.Add(new MapPoint(name, x, y));
