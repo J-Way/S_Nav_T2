@@ -15,14 +15,12 @@ namespace S_Nav.Pages.NavPage.Searches
         // Will likely need to move data loading to a prior blank activity to avoid user holdups
         //
         FirebaseConnection firebaseConnection = new FirebaseConnection();
-        string floorFile;
         List<Floor> floors;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
 
-            // PopulateRoomPicker(curWingPicker, curRoomPicker, destWingPicker, destRoomPicker);
             PopulateWingPickers();
         }
 
@@ -37,15 +35,15 @@ namespace S_Nav.Pages.NavPage.Searches
                 curWingPicker.Items.Add(item.GetFloorName());
                 destWingPicker.Items.Add(item.GetFloorName());
             }
-
+            
             curWingPicker.SelectedIndex = 0;
             destWingPicker.SelectedIndex = 0;
-
+            
             curWingPicker.IsEnabled = true;
             destWingPicker.IsEnabled = true;
         }
 
-        async void PopulateRoomPicker(Picker picker, string curFloor)
+        void PopulateRoomPicker(Picker picker, string curFloor)
         {
             foreach (var item in floors)
             {
