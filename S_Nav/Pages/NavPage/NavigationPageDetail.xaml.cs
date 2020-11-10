@@ -134,22 +134,59 @@ namespace S_Nav
             // TODO: Replace floor point loader to Firebase fetch
             CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
             List<FloorPoint> cwPoints = cwRoute.calculateRoute();
-            Console.WriteLine("Multi floors routed");
 
-            // TODO: Remove temp
-            var routePairs = new List<(string src, string dst)>
-            {
-                ("E101", "stairsTopLeft"),
-                ("stairsTopLeft", "hallEG"),
-                ("hallGE", "stairsBottom"),
-                ("stairsBottom", "G101")
-            };
-            
+            // TODO: Extract to FloorRoute
             for (int i = 0; i < cwPoints.Count; i++)
             {
-                Console.WriteLine($"----- [FP] {cwPoints[i].getName()}");
-                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2(cwPoints[i].getFBName());
-                FloorRoute route = new FloorRoute(mapPoints, routePairs[i].src, routePairs[i].dst);
+                FloorPoint cwp = cwPoints[i];
+                Console.WriteLine($"----- [FP] {cwp.getName()}");
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2(cwp.getFBName());
+                // List<MapPoint> traversalPoints = mapPoints[2];
+
+                string src = "",
+                       dst = "";
+
+                if (i > 0)
+                {
+                    FloorPoint cwpPrev = cwPoints[i - 1]; // prev floor
+
+                    if (cwpPrev.wing == cwp.wing)
+                    {
+                        // TODO: Remove hardcoded, find closest stairs from src if it exists
+                        // use `traversalPoints` to search
+                        if (cwp.wing == "E")
+                            src = "stairsTopLeft";
+                        else if (cwp.wing == "G")
+                            src = "stairsBottom";
+                    }
+                    else if (cwp.connectsTo(cwpPrev))
+                        src = $"hall{cwp.wing}{cwpPrev.wing}";
+                }
+                else
+                    src = currentLocation; // starting point
+
+                if (i < cwPoints.Count - 1) // not last
+                {
+                    FloorPoint cwpNext = cwPoints[i + 1]; // next floor
+
+                    // Covers stairs
+                    if (cwp.wing == cwpNext.wing)
+                    {
+                        // TODO: Remove hardcoded, find closest stairs from src if it exists
+                        if (cwp.wing == "E")
+                            dst = "stairsTopLeft";
+                        else if (cwp.wing == "G")
+                            dst = "stairsBottom";
+                    }
+                    // Covers cross-wing
+                    else if (cwp.connectsTo(cwpNext)) // already implies cwp.wing != cwpNext.wing
+                        dst = $"hall{cwp.wing}{cwpNext.wing}";
+                }
+                else
+                    dst = destinationLocation;
+                
+
+                FloorRoute route = new FloorRoute(mapPoints, src, dst);
                 List<MapPoint> floorRoutePoints = route.calculateRoute();
                 foreach (var frp in floorRoutePoints)
                 {

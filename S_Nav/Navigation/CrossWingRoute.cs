@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xamarin.Essentials;
 
 namespace S_Nav.Navigation
@@ -27,36 +26,34 @@ namespace S_Nav.Navigation
 
         public List<FloorPoint> calculateRoute()
         {
-            List<FloorPoint> route = new List<FloorPoint>();
-
-            // BFS
-            Queue<FloorPoint> queue = new Queue<FloorPoint>();
-            List<String> discovered = new List<string>();
-            discovered.Add(startPoint.getName());
-            queue.Enqueue(startPoint);
-            route.Add(startPoint);
+            Queue<List<FloorPoint>> queue = new Queue<List<FloorPoint>>();
+            List<string> visited = new List<string>();
+            List<FloorPoint> initialPath = new List<FloorPoint>();
+            initialPath.Add(startPoint);
+            queue.Enqueue(initialPath);
+            
             while (queue.Count > 0)
             {
-                FloorPoint fp = queue.Dequeue();
+                List<FloorPoint> path = queue.Dequeue();
+                FloorPoint fp = path[path.Count - 1];
 
                 if (fp == endPoint)
+                    return path;
+                
+                if (!visited.Contains(fp.getName()))
                 {
-                    route.Add(fp);
-                    return route;
-                }
-                    
-                fp.getConnections().ForEach(c =>
-                {
-                    if (!discovered.Contains(c.getName()))
+                    fp.getConnections().ForEach(c =>
                     {
-                        discovered.Add(c.getName());
-                        queue.Enqueue(c);
-                    }
-                });
-            }
-            // BFS END
+                        List<FloorPoint> newPath = new List<FloorPoint>(path);
+                        newPath.Add(c);
+                        queue.Enqueue(newPath);
+                    });
 
-            return route;
+                    visited.Add(fp.getName());
+                }
+            }
+
+            return null;
         }
     }
 }
