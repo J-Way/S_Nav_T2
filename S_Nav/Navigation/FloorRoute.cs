@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using SkiaSharp;
@@ -155,6 +155,65 @@ namespace S_Nav.Navigation
             }
 
             return currentMapPoint;
+        }
+
+        // Unused yet. For cross-floor routing to another floor
+        private MapPoint getNearestStairs(MapPoint curMapPoint)
+        {
+            MapPoint nearest = traversalPoints[0];
+            float nearDist = 2f; // beyond max, which is sqrt(2)
+
+            List<MapPoint> flrTrvPoints = traversalPoints.FindAll(a =>
+            {
+                string name = a.GetPointName();
+                return name.StartsWith("stairs") || name.StartsWith("elevator");
+            });
+
+            foreach (MapPoint mp in flrTrvPoints)
+            {
+                float dist = SKPoint.Distance(
+                curMapPoint.GetPointLocation(), 
+                mp.GetPointLocation());
+
+                if (dist < nearDist)
+                {
+                    nearest = mp;
+                    nearDist = dist;
+                }   
+            }
+
+            return nearest;
+        }
+
+        private MapPoint getNearestWingHall(MapPoint curMapPoint)
+        {
+            List<MapPoint> wngTrvPoints = traversalPoints.FindAll(a => a.GetPointName().StartsWith("hall"));
+            MapPoint nearest = wngTrvPoints[0];
+
+            if (wngTrvPoints.Count == 1) // shortcut
+                return nearest;
+
+            float nearDist = 2f;
+
+            foreach (MapPoint mp in wngTrvPoints)
+            {
+                if (mp.GetPointName().StartsWith("stairs") ||
+                    mp.GetPointName().StartsWith("elevator"))
+                {
+                    float dist = SKPoint.Distance(
+                    curMapPoint.GetPointLocation(), 
+                    mp.GetPointLocation());
+
+                    if (dist < nearDist)
+                    {
+                        nearest = mp;
+                        nearDist = dist;
+                    }
+                }
+                
+            }
+
+            return nearest;
         }
     }
 }
