@@ -41,6 +41,9 @@ namespace S_Nav.Pages.NavPage.Searches
             
             curWingPicker.IsEnabled = true;
             destWingPicker.IsEnabled = true;
+
+            PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+            PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
         }
 
         void PopulateRoomPicker(Picker picker, string curFloor)
@@ -59,6 +62,7 @@ namespace S_Nav.Pages.NavPage.Searches
 
             }
             picker.SelectedItem = picker.Items[0];
+            picker.IsEnabled = true;
         }
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
@@ -82,29 +86,14 @@ namespace S_Nav.Pages.NavPage.Searches
         private void CurWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             curRoomPicker.Items.Clear();
-            if (!curWingPicker.SelectedItem.ToString().Contains("Select"))
-            {
-                curRoomPicker.IsEnabled = true;
-                PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
-            }
-            else
-            {
-                curRoomPicker.IsEnabled = false;
-            }
+            PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+
         }
 
         private void DestWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             destRoomPicker.Items.Clear();
-            if (!destWingPicker.SelectedItem.ToString().Contains("Select"))
-            {
-                destRoomPicker.IsEnabled = true;
-                PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
-            }
-            else
-            {
-                destRoomPicker.IsEnabled = false;
-            }
+            PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
         }
     }
 }
