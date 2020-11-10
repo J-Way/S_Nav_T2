@@ -94,36 +94,6 @@ namespace S_Nav.Firebase
             return floors;
         }
 
-        public async Task<List<MapPoint>> GetFloorPoints(string floor)
-        {
-            List<MapPoint> mapPoints = new List<MapPoint>();
-
-            // switch to map point list after figuring out point name issue
-            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<object>();
-            //foreach (var item in items)
-            //{
-            //    foreach (var curPoint in item.Object)
-            //    {
-            //        var point = JObject.Parse(curPoint.ToString()).GetEnumerator();
-            //
-            //        // This is a horrible implementation and should be replaced
-            //        point.MoveNext();
-            //        var name = point.Current.Value.ToString();
-            //
-            //        point.MoveNext();
-            //        var x = float.Parse(point.Current.Value.ToString());
-            //
-            //        point.MoveNext();
-            //        var y = float.Parse(point.Current.Value.ToString());
-            //
-            //        //mapPoints.Add(new MapPoint(name, width * x, height * y));
-            //        mapPoints.Add(new MapPoint(name, x, y));
-            //    }
-            //}
-
-            return mapPoints;
-        }
-
         public async Task<List<List<MapPoint>>> GetFloorPoints2(string floor)
         {
             List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
