@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using SkiaSharp;
-using Xamarin.Essentials;
 
 namespace S_Nav.Navigation
 {
@@ -40,26 +38,29 @@ namespace S_Nav.Navigation
             // First point of route, immediately added
             routePoints.Add(startPoint);
 
-            // If either start or end is not a sub-room
-            if (currentLocation.Length > 4)
+            // Same floor room routing
+            if (roomPoints.Contains(startPoint) && roomPoints.Contains(endPoint))
             {
-                // Master room of first point
-                MapPoint masterOfFirstPoint =
-                    roomPoints.Find(i => i.GetPointName() == startPoint.GetPointName().Substring(0, 4));
-                routePoints.Add(masterOfFirstPoint);
+                if (currentLocation.Length > 4)
+                {
+                    // Master room of first point
+                    MapPoint masterOfFirstPoint =
+                        roomPoints.Find(i => i.GetPointName() == startPoint.GetPointName().Substring(0, 4));
+                    routePoints.Add(masterOfFirstPoint);
 
-                // single line route. covers adjacent sub-room -> master room edge case
-                if (masterOfFirstPoint.GetPointName() == endPoint.GetPointName())
+                    // single line route. covers adjacent sub-room -> master room edge case
+                    if (masterOfFirstPoint.GetPointName() == endPoint.GetPointName())
+                        return routePoints;
+
+                }
+                else if (currentLocation == endPoint.GetPointName().Substring(0, 4))
+                {
+                    // alternative single line route. covers master room -> adjacent sub-room edge case
+                    routePoints.Add(endPoint);
                     return routePoints;
-                
+                }
             }
-            else if (currentLocation == endPoint.GetPointName().Substring(0, 4))
-            {
-                // alternative single line route. covers master room -> adjacent sub-room edge case
-                routePoints.Add(endPoint);
-                return routePoints;
-            }
-            
+
             // go to halls
             MapPoint firstHallPoint = getNearestHallPoint(startPoint.GetPointLocation());
             routePoints.Add(firstHallPoint);
@@ -75,11 +76,12 @@ namespace S_Nav.Navigation
         private void addRoutePoints(List<MapPoint> routePoints)
         {
             // If end point is sub room of last added point in route, don't add any more
-            if (endPoint.GetPointName().Length > 4 &&
+            if (roomPoints.Contains(endPoint) &&
+                endPoint.GetPointName().Length > 4 &&
                 endPoint.GetPointName().Substring(0, 4) == routePoints[routePoints.Count - 1].GetPointName())
                 return;
 
-            bool findMasterRoom = true; // of end point
+            bool findMasterRoom = roomPoints.Contains(endPoint); // of end point
 
             // TODO: Stairs
             while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
@@ -130,18 +132,18 @@ namespace S_Nav.Navigation
 
         private MapPoint getNextPoint(MapPoint currentMapPoint, MapPoint endMapPoint)
         {
-            SKPoint currentPoint = currentMapPoint.GetPointLocation();
-            SKPoint endPoint = endMapPoint.GetPointLocation();
+            SKPoint curPointLoc = currentMapPoint.GetPointLocation();
+            SKPoint endPointLoc = endMapPoint.GetPointLocation();
             MapPoint nextPoint = null;
 
             foreach (MapPoint p in hallwayPoints)
             {
-                float dif = SKPoint.Distance(p.GetPointLocation(), endPoint);
-                float cur = SKPoint.Distance(currentPoint, endPoint);
+                float dif = SKPoint.Distance(p.GetPointLocation(), endPointLoc);
+                float cur = SKPoint.Distance(curPointLoc, endPointLoc);
 
                 // Align check
-                if (Math.Abs(currentPoint.X - p.GetPointLocation().X) < 1
-                    || Math.Abs(currentPoint.Y - p.GetPointLocation().Y) < 1)
+                if (Math.Abs(curPointLoc.X - p.GetPointLocation().X) < 1
+                    || Math.Abs(curPointLoc.Y - p.GetPointLocation().Y) < 1)
                 {
                     if (dif <= cur)
                     {
@@ -150,11 +152,71 @@ namespace S_Nav.Navigation
                         return nextPoint;
                     }
                 }
-                
+
                 // TODO: else if curved hall check to next hall point
             }
 
             return currentMapPoint;
+        }
+
+        // Unused. To be used for cross-floor routing to another floor
+        private MapPoint getNearestStairs(MapPoint curMapPoint)
+        {
+            MapPoint nearest = traversalPoints[0];
+            float nearDist = 2f; // beyond max, which is sqrt(2)
+
+            List<MapPoint> flrTrvPoints = traversalPoints.FindAll(a =>
+            {
+                string name = a.GetPointName();
+                return name.StartsWith("stairs") || name.StartsWith("elevator");
+            });
+
+            foreach (MapPoint mp in flrTrvPoints)
+            {
+                float dist = SKPoint.Distance(
+                curMapPoint.GetPointLocation(),
+                mp.GetPointLocation());
+
+                if (dist < nearDist)
+                {
+                    nearest = mp;
+                    nearDist = dist;
+                }
+            }
+
+            return nearest;
+        }
+
+        // Unused. To be used for cross-floor routing to another wing
+        private MapPoint getNearestWingHall(MapPoint curMapPoint)
+        {
+            List<MapPoint> wngTrvPoints = traversalPoints.FindAll(a => a.GetPointName().StartsWith("hall"));
+            MapPoint nearest = wngTrvPoints[0];
+
+            if (wngTrvPoints.Count == 1) // shortcut
+                return nearest;
+
+            float nearDist = 2f;
+
+            foreach (MapPoint mp in wngTrvPoints)
+            {
+                if (mp.GetPointName().StartsWith("stairs") ||
+                    mp.GetPointName().StartsWith("elevator"))
+                {
+                    float dist = SKPoint.Distance(
+                    curMapPoint.GetPointLocation(),
+                    mp.GetPointLocation());
+
+                    if (dist < nearDist)
+                    {
+                        nearest = mp;
+                        nearDist = dist;
+                    }
+                }
+
+            }
+
+            return nearest;
         }
     }
 }
