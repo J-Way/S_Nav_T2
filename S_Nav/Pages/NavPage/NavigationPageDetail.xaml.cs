@@ -53,14 +53,14 @@ namespace S_Nav
         SKPaint greenStroke = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 15,
-            Color = SKColors.SeaGreen
+            StrokeWidth = 30,
+            Color = SKColors.Lime
         };
         SKPaint redStroke = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 15,
-            Color = SKColors.IndianRed
+            StrokeWidth = 30,
+            Color = SKColors.OrangeRed
         };
 
         // creates detail page
