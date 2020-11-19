@@ -411,6 +411,7 @@ namespace S_Nav
             NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
+        
         //
         // Takes a list of points and  draws lines between them
         //

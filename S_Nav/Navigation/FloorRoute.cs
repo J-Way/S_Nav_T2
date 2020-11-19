@@ -20,8 +20,10 @@ namespace S_Nav.Navigation
 
         public FloorRoute(List<List<MapPoint>> _givenPoints, string curLoc, string destLoc)
         {
+            // why are we declaring these?
             currentLocation = curLoc;
             destinationLocation = destLoc;
+            //
 
             utilityPoints = _givenPoints[0];
             roomPoints = _givenPoints[1];
@@ -31,24 +33,18 @@ namespace S_Nav.Navigation
             if(_givenPoints.Count > 4)
                 wingConnector = _givenPoints[4];
 
-            startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
+            //startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
             endPoint = roomPoints.Find(i => i.GetPointName() == destinationLocation);
 
-            // if wings are different find traversal point
-            if(startPoint == null)
+            foreach (var item in _givenPoints)
             {
-                startPoint = traversalPoints.Find(i => i.GetPointName() == currentLocation);
+                if(startPoint == null)
+                    startPoint = item.Find(i => i.GetPointName() == currentLocation);
+                if(endPoint == null)
+                    endPoint = item.Find(i => i.GetPointName() == destinationLocation);
 
-                // yes this is not optimal, I'm aware
-                if (startPoint == null)
-                    startPoint = wingConnector.Find(i => i.GetPointName() == currentLocation);
-            }
-            if(endPoint == null)
-            {
-                endPoint = traversalPoints.Find(i => i.GetPointName() == destinationLocation);
-
-                if (endPoint == null)
-                    endPoint = wingConnector.Find(i => i.GetPointName() == destinationLocation);
+                if (startPoint != null && endPoint != null)
+                    break;
             }
         }
 

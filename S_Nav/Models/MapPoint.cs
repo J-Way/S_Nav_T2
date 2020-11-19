@@ -9,6 +9,8 @@ namespace S_Nav
         private string point_name { get; set; }
         private string pointDescription { get; set; }
 
+        private bool isAccessible { get; set; }
+
         private SKPoint pointLocation { get; set; }
 
         public string GetPointName()
@@ -36,6 +38,13 @@ namespace S_Nav
         {
             this.point_name = pName;
             this.pointLocation = new SKPoint(x, y);
+        }
+
+        public MapPoint(string pName, float x, float y, bool accessible)
+        {
+            this.point_name = pName;
+            this.pointLocation = new SKPoint(x, y);
+            this.isAccessible = accessible;
         }
 
         public MapPoint(string name)
