@@ -80,5 +80,7 @@ namespace S_Nav
         {
             this.pointLocation =new SKPoint(x, this.pointLocation.Y);
         }
+
+        public bool getAccess() { return this.isAccessible; }
     }
 }

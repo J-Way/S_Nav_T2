@@ -22,7 +22,7 @@ namespace S_Nav
     {
 
         string currentWing, currentLocation, destinationWing, destinationLocation;
-        bool isRouting = false, isDrawing = false;
+        bool isRouting = false, isDrawing = false, needsAccess;
 
         private FirebaseConnection firebaseConnection;
 
@@ -203,7 +203,19 @@ namespace S_Nav
                     }
                     else if (currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
                     {
-                        destinationLocation = mapPoints[2][0].GetPointName();
+                        needsAccess = Preferences.Get("accessibility", false);
+                        if(!needsAccess)
+                            destinationLocation = mapPoints[2][0].GetPointName();
+                        else
+                            foreach (var x in mapPoints[2])
+                            {
+                                if (x.getAccess())
+                                {
+                                    destinationLocation = x.GetPointName();
+                                    break;
+                                }
+                            }
+                        
                         Preferences.Set("curLoc", destinationLocation);
                         break;
                     }

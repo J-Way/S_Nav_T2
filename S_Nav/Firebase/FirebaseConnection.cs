@@ -115,12 +115,6 @@ namespace S_Nav.Firebase
                     // This is a horrible implementation and should be replaced
                     response.MoveNext();
 
-                    if (response.Current.Key.ToString() == "ACCESSIBILITY")
-                    {
-                        accessible = bool.Parse(response.Current.Value.ToString());
-                        response.MoveNext();
-                    }
-
                     var name = response.Current.Value.ToString();
 
                     response.MoveNext();
@@ -129,7 +123,14 @@ namespace S_Nav.Firebase
                     response.MoveNext();
                     var y = height * float.Parse(response.Current.Value.ToString());
 
-                    points.Add(new MapPoint(name, x, y));
+                    response.MoveNext();
+
+                    if (response.Current.Key.ToString() == "isAccessible")
+                    {
+                        accessible = bool.Parse(response.Current.Value.ToString());
+                    }
+
+                    points.Add(new MapPoint(name, x, y, accessible));
                 }
 
                 mapPoints.Add(points);

@@ -103,7 +103,7 @@ namespace S_Nav.Pages.NavPage.Searches
             if (AccessibilitySwitch.IsToggled)
             {
                 AccessibilityNotif.Text = "TRUE";
-
+                Preferences.Set("accessibility", true);
                 // set preference?
             }
 
@@ -111,6 +111,7 @@ namespace S_Nav.Pages.NavPage.Searches
             else
             {
                 AccessibilityNotif.Text = "FALSE";
+                Preferences.Set("accessibility", false);
             }
         }
     }
