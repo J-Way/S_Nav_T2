@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -172,7 +172,7 @@ namespace S_Nav
 
             // TODO: Replace floor point loader to Firebase fetch
             CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
-            //List<FloorPoint> cwPoints = cwRoute.calculateRoute();
+            List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
 
             // can change to cwRoute start / end later
             if (currentWing.Equals(destinationWing))
@@ -180,7 +180,7 @@ namespace S_Nav
                 List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-"+currentWing);
 
                 FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
-                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
                 foreach (var frp in floorRoutePoints)
                 {
                     Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
@@ -193,7 +193,7 @@ namespace S_Nav
             {
 
                 List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
-                foreach (var item in cwRoute.getFloorPoints())
+                foreach (var item in cwRoute.floorPoints)
                 {
                     if(currentWing.Substring(0,1) != destinationWing.Substring(0,1) && currentWing.Contains("2"))
                     {
@@ -210,7 +210,7 @@ namespace S_Nav
                 }
 
                 FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
-                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
                 foreach (var frp in floorRoutePoints)
                 {
                     Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
@@ -280,7 +280,7 @@ namespace S_Nav
                 
 
                 FloorRoute route = new FloorRoute(mapPoints, src, dst);
-                List<MapPoint> floorRoutePoints = route.calculateRoute();
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
                 foreach (var frp in floorRoutePoints)
                 {
                     Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
