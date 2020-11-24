@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SkiaSharp;
 
@@ -31,25 +31,19 @@ namespace S_Nav.Navigation
             if(_givenPoints.Count > 4)
                 wingConnector = _givenPoints[4];
 
-            startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
-            endPoint = roomPoints.Find(i => i.GetPointName() == destinationLocation);
+            startPoint = FindPoint(currentLocation);
+            endPoint = FindPoint(destinationLocation);
+        }
 
-            // if wings are different find traversal point
-            if(startPoint == null)
-            {
-                startPoint = traversalPoints.Find(i => i.GetPointName() == currentLocation);
+        private MapPoint FindPoint (string loc)
+        {
+             MapPoint point = roomPoints.Find(i => i.GetPointName() == loc) 
+                              ?? traversalPoints.Find(i => i.GetPointName() == loc) 
+                              ?? wingConnector.Find(i => i.GetPointName() == loc);
+            
+            // for any more alternatives, follow above
 
-                // yes this is not optimal, I'm aware
-                if (startPoint == null)
-                    startPoint = wingConnector.Find(i => i.GetPointName() == currentLocation);
-            }
-            if(endPoint == null)
-            {
-                endPoint = traversalPoints.Find(i => i.GetPointName() == destinationLocation);
-
-                if (endPoint == null)
-                    endPoint = wingConnector.Find(i => i.GetPointName() == destinationLocation);
-            }
+            return point;
         }
 
         public List<MapPoint> CalculateRoute()
