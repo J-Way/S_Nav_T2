@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SkiaSharp;
 
@@ -180,13 +180,7 @@ namespace S_Nav.Navigation
             MapPoint nearest = traversalPoints[0];
             float nearDist = 2f; // beyond max, which is sqrt(2)
 
-            List<MapPoint> flrTrvPoints = traversalPoints.FindAll(a =>
-            {
-                string name = a.GetPointName();
-                return name.StartsWith("stairs") || name.StartsWith("elevator");
-            });
-
-            foreach (MapPoint mp in flrTrvPoints)
+            foreach (MapPoint mp in traversalPoints)
             {
                 float dist = SKPoint.Distance(
                 curMapPoint.GetPointLocation(),
@@ -203,17 +197,16 @@ namespace S_Nav.Navigation
         }
 
         // Unused. To be used for cross-floor routing to another wing
-        private MapPoint GetNearestWingHall(MapPoint curMapPoint)
+        private MapPoint GetNearestConnector(MapPoint curMapPoint)
         {
-            List<MapPoint> wngTrvPoints = traversalPoints.FindAll(a => a.GetPointName().StartsWith("hall"));
-            MapPoint nearest = wngTrvPoints[0];
+            MapPoint nearest = wingConnector[0];
 
-            if (wngTrvPoints.Count == 1) // shortcut
+            if (wingConnector.Count == 1) // shortcut
                 return nearest;
 
             float nearDist = 2f;
 
-            foreach (MapPoint mp in wngTrvPoints)
+            foreach (MapPoint mp in wingConnector)
             {
                 if (mp.GetPointName().StartsWith("stairs") ||
                     mp.GetPointName().StartsWith("elevator"))
