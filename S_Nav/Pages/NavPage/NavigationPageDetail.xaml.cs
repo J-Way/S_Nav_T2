@@ -172,7 +172,7 @@ namespace S_Nav
 
             // TODO: Replace floor point loader to Firebase fetch
             CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
-            List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
+            //List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
 
             // can change to cwRoute start / end later
             if (currentWing.Equals(destinationWing))
