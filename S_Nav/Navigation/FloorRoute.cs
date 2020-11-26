@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SkiaSharp;
 
@@ -33,22 +33,22 @@ namespace S_Nav.Navigation
             if(_givenPoints.Count > 4)
                 wingConnector = _givenPoints[4];
 
-            //startPoint = roomPoints.Find(i => i.GetPointName() == currentLocation);
-            endPoint = roomPoints.Find(i => i.GetPointName() == destinationLocation);
-
-            foreach (var item in _givenPoints)
-            {
-                if(startPoint == null)
-                    startPoint = item.Find(i => i.GetPointName() == currentLocation);
-                if(endPoint == null)
-                    endPoint = item.Find(i => i.GetPointName() == destinationLocation);
-
-                if (startPoint != null && endPoint != null)
-                    break;
-            }
+            startPoint = FindPoint(currentLocation);
+            endPoint = FindPoint(destinationLocation);
         }
 
-        public List<MapPoint> calculateRoute()
+        private MapPoint FindPoint (string loc)
+        {
+             MapPoint point = roomPoints.Find(i => i.GetPointName() == loc) 
+                              ?? traversalPoints.Find(i => i.GetPointName() == loc) 
+                              ?? wingConnector.Find(i => i.GetPointName() == loc);
+            
+            // for any more alternatives, follow above
+
+            return point;
+        }
+
+        public List<MapPoint> CalculateRoute()
         {
             List<MapPoint> routePoints = new List<MapPoint>();
 
@@ -79,10 +79,10 @@ namespace S_Nav.Navigation
             }
 
             // go to halls
-            MapPoint firstHallPoint = getNearestHallPoint(startPoint.GetPointLocation());
+            MapPoint firstHallPoint = GetNearestHallPoint(startPoint.GetPointLocation());
             routePoints.Add(firstHallPoint);
 
-            addRoutePoints(routePoints);
+            AddRoutePoints(routePoints);
 
             // Destination point as last
             routePoints.Add(endPoint);
@@ -90,7 +90,7 @@ namespace S_Nav.Navigation
             return routePoints;
         }
 
-        private void addRoutePoints(List<MapPoint> routePoints)
+        private void AddRoutePoints(List<MapPoint> routePoints)
         {
             // If end point is sub room of last added point in route, don't add any more
             if (roomPoints.Contains(endPoint) &&
@@ -110,7 +110,7 @@ namespace S_Nav.Navigation
 
                     while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
                     {
-                        routePoints.Add(getNextPoint(
+                        routePoints.Add(GetNextPoint(
                             routePoints[routePoints.Count - 1],
                             masterRoom)
                         );
@@ -121,13 +121,13 @@ namespace S_Nav.Navigation
                 {
                     findMasterRoom = false;
                 }
-                routePoints.Add(getNextPoint(
+                routePoints.Add(GetNextPoint(
                     routePoints[routePoints.Count - 1],
                     endPoint));
             }
         }
 
-        private MapPoint getNearestHallPoint(SKPoint start)
+        private MapPoint GetNearestHallPoint(SKPoint start)
         {
             MapPoint nearestPoint = new MapPoint(new SKPoint(0, 0));
 
@@ -147,7 +147,7 @@ namespace S_Nav.Navigation
             return nearestPoint;
         }
 
-        private MapPoint getNextPoint(MapPoint currentMapPoint, MapPoint endMapPoint)
+        private MapPoint GetNextPoint(MapPoint currentMapPoint, MapPoint endMapPoint)
         {
             SKPoint curPointLoc = currentMapPoint.GetPointLocation();
             SKPoint endPointLoc = endMapPoint.GetPointLocation();
@@ -177,18 +177,12 @@ namespace S_Nav.Navigation
         }
 
         // Unused. To be used for cross-floor routing to another floor
-        private MapPoint getNearestStairs(MapPoint curMapPoint)
+        private MapPoint GetNearestStairs(MapPoint curMapPoint)
         {
             MapPoint nearest = traversalPoints[0];
             float nearDist = 2f; // beyond max, which is sqrt(2)
 
-            List<MapPoint> flrTrvPoints = traversalPoints.FindAll(a =>
-            {
-                string name = a.GetPointName();
-                return name.StartsWith("stairs") || name.StartsWith("elevator");
-            });
-
-            foreach (MapPoint mp in flrTrvPoints)
+            foreach (MapPoint mp in traversalPoints)
             {
                 float dist = SKPoint.Distance(
                 curMapPoint.GetPointLocation(),
@@ -205,17 +199,16 @@ namespace S_Nav.Navigation
         }
 
         // Unused. To be used for cross-floor routing to another wing
-        private MapPoint getNearestWingHall(MapPoint curMapPoint)
+        private MapPoint GetNearestConnector(MapPoint curMapPoint)
         {
-            List<MapPoint> wngTrvPoints = traversalPoints.FindAll(a => a.GetPointName().StartsWith("hall"));
-            MapPoint nearest = wngTrvPoints[0];
+            MapPoint nearest = wingConnector[0];
 
-            if (wngTrvPoints.Count == 1) // shortcut
+            if (wingConnector.Count == 1) // shortcut
                 return nearest;
 
             float nearDist = 2f;
 
-            foreach (MapPoint mp in wngTrvPoints)
+            foreach (MapPoint mp in wingConnector)
             {
                 if (mp.GetPointName().StartsWith("stairs") ||
                     mp.GetPointName().StartsWith("elevator"))

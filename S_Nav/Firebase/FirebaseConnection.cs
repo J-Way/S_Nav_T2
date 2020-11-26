@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using Xamarin.Essentials;
 using S_Nav.Models;
+using S_Nav.Navigation;
 
 namespace S_Nav.Firebase
 {
@@ -92,6 +93,56 @@ namespace S_Nav.Firebase
             }
 
             return floors;
+        }
+
+        // Fetch data to be used for cross-wing. Pending rename
+        public async Task<List<FloorPoint>> GetMacroMap()
+        {
+            List<FloorPoint> floorPoints = new List<FloorPoint>();
+
+            var floorQuery = firebaseDB.Child("FLOOR_DATA");
+            Func<string, Task<IReadOnlyCollection<FirebaseObject<List<object>>>>> getFloorPoints = async (floor) =>
+            {
+                await Task.Yield(); // let async start at query build instead of query execution
+                var q = floorQuery.Child(floor).Child("FLOOR_POINTS");
+                return await q.OnceAsync<List<object>>();
+            };
+
+            var floorData = await floorQuery.OrderByKey().OnceAsync<List<Object>>();
+
+            foreach (var item in floorData)
+            {
+                // Initiate floor
+                FloorPoint fp = new FloorPoint(item.Key.ToString().Substring(4));
+                // Substring of 4 to omit TRA-, DAV-, HMC-. No expectation of routing to another campus
+
+                if (floorPoints.Count == 0)
+                {
+                    floorPoints.Add(fp);
+                    continue;
+                }
+
+                // Try to make connections to added points
+                foreach (FloorPoint ofp in floorPoints)
+                {
+                    // Same wing
+                    if (fp.wing == ofp.wing)
+                        fp.addConnections(ofp);
+
+                    // Has wing connector
+                    // TODO: Check if diff wing floors are connected by wing connector
+                    /*var curFloorPoints = await getFloorPoints(fp.getFBName());
+                    var othFloorPoints = await getFloorPoints(ofp.getFBName());
+                    if (curFloorPoints.Count > 4 && othFloorPoints.Count > 4) // both have "WING_CONNECTORS"
+                    {
+                        
+                    }*/
+                }
+
+                floorPoints.Add(fp);
+            }
+
+            return floorPoints;
         }
 
         public async Task<List<List<MapPoint>>> GetFloorPoints2(string floor)

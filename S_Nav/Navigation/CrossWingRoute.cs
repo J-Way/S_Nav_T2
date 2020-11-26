@@ -9,14 +9,14 @@ namespace S_Nav.Navigation
         private FloorPoint startPoint;
         private FloorPoint endPoint;
 
-        private List<FloorPoint> floorPoints;
+        public List<FloorPoint> floorPoints { get; }
 
         public CrossWingRoute(List<FloorPoint> _floorPoints)
         {
             floorPoints = _floorPoints;
 
-            String curLoc = Preferences.Get("curLoc", null);
-            String destLoc = Preferences.Get("destLoc", null);
+            string curLoc = Preferences.Get("curLoc", null);
+            string destLoc = Preferences.Get("destLoc", null);
 
             startPoint = floorPoints.Find(p =>
                 p.getName() == curLoc.Substring(0, 2));
@@ -24,15 +24,11 @@ namespace S_Nav.Navigation
                 p.getName() == destLoc.Substring(0, 2));
         }
 
-        public List<FloorPoint> getFloorPoints() { return this.floorPoints; }
-
-        public List<FloorPoint> calculateRoute()
+        public List<FloorPoint> CalculateRoute()
         {
             Queue<List<FloorPoint>> queue = new Queue<List<FloorPoint>>();
             List<string> visited = new List<string>();
-            List<FloorPoint> initialPath = new List<FloorPoint>();
-            initialPath.Add(startPoint);
-            queue.Enqueue(initialPath);
+            queue.Enqueue(new List<FloorPoint> { startPoint });
             
             while (queue.Count > 0)
             {
@@ -46,8 +42,7 @@ namespace S_Nav.Navigation
                 {
                     fp.getConnections().ForEach(c =>
                     {
-                        List<FloorPoint> newPath = new List<FloorPoint>(path);
-                        newPath.Add(c);
+                        List<FloorPoint> newPath = new List<FloorPoint>(path) {c};
                         queue.Enqueue(newPath);
                     });
 
