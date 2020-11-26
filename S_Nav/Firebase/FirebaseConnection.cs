@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using Xamarin.Essentials;
 using S_Nav.Models;
+using S_Nav.Navigation;
 
 namespace S_Nav.Firebase
 {
@@ -22,7 +23,6 @@ namespace S_Nav.Firebase
         static FirebaseOptions dbOptions;
         static FirebaseStorageOptions fileOptions;
 
-
         FirebaseClient firebaseDB;
         FirebaseStorage firebaseFiles;
 
@@ -30,9 +30,9 @@ namespace S_Nav.Firebase
         {
             FirebaseSetup();
 
-            // these next 4 lines of code won't always need to exist concurently (wrong spelling?)
-            dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
-            fileOptions = new FirebaseStorageOptions  { AuthTokenAsyncFactory = async () => await CheckToken(apiKey, debugMail, debugPw) };
+            // these next 4 lines of code won't always need to exist concurrently
+            dbOptions = new FirebaseOptions { AuthTokenAsyncFactory = () => AnonLogin() };
+            fileOptions = new FirebaseStorageOptions { AuthTokenAsyncFactory = () => AnonLogin() };
 
             firebaseDB = new FirebaseClient(dbLink, dbOptions);
             firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
@@ -95,48 +95,105 @@ namespace S_Nav.Firebase
             return floors;
         }
 
-        public async Task<List<string>> GetFloorRooms(string floor)
+        // Fetch data to be used for cross-wing. Pending rename
+        public async Task<List<FloorPoint>> GetMacroMap()
         {
-            var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("ROOMS").OnceAsync<object>();
+            List<FloorPoint> floorPoints = new List<FloorPoint>();
 
-            List<string> rooms = new List<string>();
-
-            foreach (var room in items)
+            var floorQuery = firebaseDB.Child("FLOOR_DATA");
+            Func<string, Task<IReadOnlyCollection<FirebaseObject<List<object>>>>> getFloorPoints = async (floor) =>
             {
-                rooms.Add(room.Object.ToString());
+                await Task.Yield(); // let async start at query build instead of query execution
+                var q = floorQuery.Child(floor).Child("FLOOR_POINTS");
+                return await q.OnceAsync<List<object>>();
+            };
+
+            var floorData = await floorQuery.OrderByKey().OnceAsync<List<Object>>();
+
+            foreach (var item in floorData)
+            {
+                // Initiate floor
+                FloorPoint fp = new FloorPoint(item.Key.ToString().Substring(4));
+                // Substring of 4 to omit TRA-, DAV-, HMC-. No expectation of routing to another campus
+
+                if (floorPoints.Count == 0)
+                {
+                    floorPoints.Add(fp);
+                    continue;
+                }
+
+                // Try to make connections to added points
+                foreach (FloorPoint ofp in floorPoints)
+                {
+                    // Same wing
+                    if (fp.wing == ofp.wing)
+                        fp.addConnections(ofp);
+
+                    // Has wing connector
+                    // TODO: Check if diff wing floors are connected by wing connector
+                    /*var curFloorPoints = await getFloorPoints(fp.getFBName());
+                    var othFloorPoints = await getFloorPoints(ofp.getFBName());
+                    if (curFloorPoints.Count > 4 && othFloorPoints.Count > 4) // both have "WING_CONNECTORS"
+                    {
+                        
+                    }*/
+                }
+
+                floorPoints.Add(fp);
             }
 
-            return rooms;
+            return floorPoints;
         }
 
-        public async Task<List<MapPoint>> GetFloorPoints(string floor)
+        public async Task<List<List<MapPoint>>> GetFloorPoints2(string floor)
         {
-            List<MapPoint> mapPoints = new List<MapPoint>();
+            List<List<MapPoint>> mapPoints = new List<List<MapPoint>>();
 
-            // switch to map point list after figuring out point name issue
             var items = await firebaseDB.Child("FLOOR_DATA").Child(floor).Child("FLOOR_POINTS").OnceAsync<List<object>>();
+
+            int height = Preferences.Get("screen_height", 0);
+            int width = Preferences.Get("screen_width", 0);
+
             foreach (var item in items)
             {
+                List<MapPoint> points = new List<MapPoint>();
+
                 foreach (var curPoint in item.Object)
                 {
-                    var point = JObject.Parse(curPoint.ToString()).GetEnumerator();
+                    var response = JObject.Parse(curPoint.ToString()).GetEnumerator();
 
+                    bool accessible = false;
                     // This is a horrible implementation and should be replaced
-                    point.MoveNext();
-                    var name = point.Current.Value.ToString();
+                    response.MoveNext();
 
-                    point.MoveNext();
-                    var x = float.Parse(point.Current.Value.ToString());
+                    var name = response.Current.Value.ToString();
 
-                    point.MoveNext();
-                    var y = float.Parse(point.Current.Value.ToString());
+                    response.MoveNext();
+                    var x = width * float.Parse(response.Current.Value.ToString());
 
-                    //mapPoints.Add(new MapPoint(name, width * x, height * y));
-                    mapPoints.Add(new MapPoint(name, x, y));
+                    response.MoveNext();
+                    var y = height * float.Parse(response.Current.Value.ToString());
+
+                    response.MoveNext();
+
+                    if (response.Current.Key.ToString() == "isAccessible")
+                    {
+                        accessible = bool.Parse(response.Current.Value.ToString());
+                    }
+
+                    points.Add(new MapPoint(name, x, y, accessible));
                 }
-            }
 
+                mapPoints.Add(points);
+            }
             return mapPoints;
+        }
+
+        public static async Task<string> AnonLogin()
+        {
+            var authProvider = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyDlrs12gBooCtCtg6SXVG2xP3BE-jYXk7g"));
+            var auth = await authProvider.SignInAnonymouslyAsync();
+            return auth.FirebaseToken;
         }
 
         public static async Task<string> CheckToken(string apiKey, string debugMail, string debugPw)

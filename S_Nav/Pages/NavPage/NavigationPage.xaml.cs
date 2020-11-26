@@ -19,6 +19,12 @@ namespace S_Nav
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
             Detail = new NavigationPageDetail();
         }
+        public NavigationPage(bool isRouting)
+        {
+            InitializeComponent();
+            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
+            Detail = new NavigationPageDetail(isRouting);
+        }
 
         public NavigationPage(string floorFile)
         {
@@ -27,13 +33,12 @@ namespace S_Nav
             Detail = new NavigationPageDetail(floorFile);
         }
 
-        public NavigationPage(List<MapPoint> points, string floorFile)
+        public NavigationPage(List<MapPoint> points)
         {
             InitializeComponent();
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail(points, floorFile);
+            Detail = new NavigationPageDetail(points);
         }
-
 
         private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {

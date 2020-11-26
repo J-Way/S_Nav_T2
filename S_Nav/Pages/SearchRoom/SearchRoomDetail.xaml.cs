@@ -15,18 +15,18 @@ namespace S_Nav.Pages.NavPage.Searches
         // Will likely need to move data loading to a prior blank activity to avoid user holdups
         //
         FirebaseConnection firebaseConnection = new FirebaseConnection();
-        string floorFile;
         List<Floor> floors;
 
         public SearchRoomDetail()
         {
             InitializeComponent();
+
             PopulateWingPickers();
         }
-        
+
         //////////
         // this is called before any location data is loaded
-        private async void PopulateWingPickers()
+        async void PopulateWingPickers()
         {
             floors = await firebaseConnection.GetFloors();
 
@@ -35,22 +35,23 @@ namespace S_Nav.Pages.NavPage.Searches
                 curWingPicker.Items.Add(item.GetFloorName());
                 destWingPicker.Items.Add(item.GetFloorName());
             }
-
+            
             curWingPicker.SelectedIndex = 0;
             destWingPicker.SelectedIndex = 0;
-
+            
             curWingPicker.IsEnabled = true;
             destWingPicker.IsEnabled = true;
+
+            PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+            PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
         }
 
-        //////////
-        // Should only be called when a valid* wing is selected
-        private void PopulateRoomPicker(Picker picker, string curFloor)
+        void PopulateRoomPicker(Picker picker, string curFloor)
         {
             foreach (var item in floors)
             {
                 // I'm not happy with this solution either
-                if(item.GetFloorName() == curFloor)
+                if (item.GetFloorName() == curFloor)
                 {
                     var rooms = item.GetRooms();
                     foreach (var r in rooms)
@@ -61,6 +62,7 @@ namespace S_Nav.Pages.NavPage.Searches
 
             }
             picker.SelectedItem = picker.Items[0];
+            picker.IsEnabled = true;
         }
 
         private async void SearchRoute_Clicked(object sender, EventArgs e)
@@ -72,11 +74,11 @@ namespace S_Nav.Pages.NavPage.Searches
             else
             {
                 Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
+                Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
                 Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
+                Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
 
-                floorFile = "TRA-" + curWingPicker.SelectedItem.ToString() + ".png";
-
-                NavigationPage routePage = new NavigationPage(floorFile);
+                NavigationPage routePage = new NavigationPage(true);
 
                 await Navigation.PushModalAsync(routePage);
             }
@@ -85,16 +87,32 @@ namespace S_Nav.Pages.NavPage.Searches
         private void CurWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             curRoomPicker.Items.Clear();
-            curRoomPicker.IsEnabled = true;
             PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+
         }
 
         private void DestWingPicker_Unfocused(object sender, FocusEventArgs e)
         {
             destRoomPicker.Items.Clear();
-            destRoomPicker.IsEnabled = true;
             PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+        }
 
+        private void AccessibilitySwitch_Toggled(object sender, ToggledEventArgs e)
+        {
+            // accessibility required
+            if (AccessibilitySwitch.IsToggled)
+            {
+                AccessibilityNotif.Text = "TRUE";
+                Preferences.Set("accessibility", true);
+                // set preference?
+            }
+
+            // accessibility not required
+            else
+            {
+                AccessibilityNotif.Text = "FALSE";
+                Preferences.Set("accessibility", false);
+            }
         }
     }
 }

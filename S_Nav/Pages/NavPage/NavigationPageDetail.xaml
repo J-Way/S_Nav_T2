@@ -23,24 +23,8 @@
                            Grid.Column="0"
                            Grid.ColumnSpan="3"/>
 
-        <Button x:Name="WingUpButton"
-            Text=""
-                VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
-                  Grid.Row="0"
-                  Grid.Column="0"
-                 Grid.ColumnSpan="3"/>
-
-        <Button x:Name="WingDownButton" 
-            Text=""
-                VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
-                  Grid.Row="10"
-                  Grid.Column="0"
-                 Grid.ColumnSpan="3"/>
-
         <Button x:Name="WingRightButton" 
-            Text=""
+            Text="E-Wing"
                 VerticalOptions="CenterAndExpand"
                 HorizontalOptions="Center"
                   Grid.Row="0"
@@ -48,7 +32,7 @@
                 Clicked="WingRightClicked"/>
 
         <Button x:Name="WingLeftButton" 
-            Text=""
+            Text="G-Wing"
                 VerticalOptions="Center"
                 HorizontalOptions="Center"
                   Grid.Row="0"

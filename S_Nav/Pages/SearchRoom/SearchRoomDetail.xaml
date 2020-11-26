@@ -10,7 +10,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />  <!-- Errors-->
-            <RowDefinition Height="80"/>  <!-- blank space -->
+            <RowDefinition Height="80" />  <!-- blank space -->
             <RowDefinition Height="40"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="40"/>
@@ -69,8 +69,11 @@
         <Label Text="Please note you must select a wing before rooms can be viewed. applies to both current and destination location"
                Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="4"/>
 
+        <Label Text="Accessibility Required: " Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="4"/>
+        <Switch x:Name="AccessibilitySwitch" Toggled="AccessibilitySwitch_Toggled" IsToggled="False" Grid.Row="7" Grid.Column="4" HorizontalOptions="Center"/>
+        <Label x:Name="AccessibilityNotif" Text="False" Grid.Row="8" Grid.Column="4" Grid.ColumnSpan="2" HorizontalOptions="Center"/>
         <Button Text="Start navigation" 
-                Grid.Row="7"
+                Grid.Row="10"
                 Grid.Column="0"
                 Grid.ColumnSpan="6"
                 HorizontalOptions="Fill"

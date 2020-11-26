@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.ComponentModel;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
@@ -8,7 +9,9 @@ using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Essentials;
-using System.Reflection;
+using System.Threading.Tasks;
+using S_Nav.Firebase;
+using S_Nav.Navigation;
 
 namespace S_Nav
 {
@@ -18,7 +21,18 @@ namespace S_Nav
     public partial class NavigationPageDetail : ContentPage
     {
 
-        string currentLocation, destinationLocation;
+        string currentWing, currentLocation, destinationWing, destinationLocation;
+        bool isRouting = false, isDrawing = false, needsAccess;
+
+        private FirebaseConnection firebaseConnection;
+
+        // image being loaded
+        SKBitmap image;
+
+        string floorFile;
+
+        List<MapPoint> pointsToDraw;
+
 
         // temporary route colour
         SKPaint routeColour = new SKPaint
@@ -39,21 +53,15 @@ namespace S_Nav
         SKPaint greenStroke = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 15,
-            Color = SKColors.SeaGreen
+            StrokeWidth = 30,
+            Color = SKColors.Lime
         };
         SKPaint redStroke = new SKPaint
         {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 15,
-            Color = SKColors.IndianRed
+            StrokeWidth = 30,
+            Color = SKColors.OrangeRed
         };
-
-
-        // image being loaded
-        SKBitmap image;
-
-        string floorFile;
 
         // creates detail page
         // dont touch this
@@ -66,43 +74,233 @@ namespace S_Nav
             EWingButtonLayout();
         }
 
-        public NavigationPageDetail(List<MapPoint> p, string file)
+        public NavigationPageDetail(List<MapPoint> p)
+        {
+            InitializeComponent();
+            currentWing = Preferences.Get("curWing", null);
+
+            isRouting = false;
+            isDrawing = true;
+            floorFile = $"TRA-{currentWing}.png";
+
+            pointsToDraw = p;
+        }
+        
+        public NavigationPageDetail(bool routing)
         {
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
+            currentWing = Preferences.Get("curWing", null);
+            destinationWing = Preferences.Get("destWing", null);
+            destinationLocation = Preferences.Get("destLoc", null);
 
+            isRouting = routing;
+
+            if (isRouting)
+            {
+                floorFile = $"TRA-{currentWing}.png";
+
+                firebaseConnection = new FirebaseConnection();
+            }
+        }
+        public NavigationPageDetail(string file)
+        {
+            InitializeComponent();
+            currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
+            if (floorFile.Contains("G"))
+            {
+                GWingButtonLayout();
+            }
+            else if (floorFile.Contains("E"))
+            {
+                EWingButtonLayout();
+            }
         }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
         ///         NavigationPageDetail()
-        private void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        { 
+        private async void canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
             SKSurface surface = e.Surface; // screen
             SKCanvas canvas = surface.Canvas; // drawable screen
 
             int width = e.Info.Width; // screen dimensions
             int height = e.Info.Height;
 
+            Preferences.Set("screen_width", width);
+            Preferences.Set("screen_height", height);
+
             canvas.Scale(1, 1);
 
             SetFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
 
-            // Calls routing
-            if (currentLocation != null)
+            if (isRouting)
             {
-                //LoadPoints pointLoader = new LoadPoints();
-                //List<MapPoint> points = pointLoader.loadPoints(width, height);
-                //
-                //points = calculateRoute(points);
-                //drawRoute(points, canvas);
-                //
-                //canvas.DrawPoint(points[points.Count - 1].getPointLocation(), redStroke);
-            }
-            canvas.Save();
+                if (currentLocation != null)
+                {
+                    Console.WriteLine("Time to route!");
 
+                    List<MapPoint> routePoints = await StartRouting();
+
+                    NavigationPage drawPage = new NavigationPage(routePoints);
+
+                    await Navigation.PushModalAsync(drawPage);
+
+                    //DrawRoute(routePoints, canvas);
+                    //
+                    //canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
+                }
+            }
+            else if (isDrawing)
+            {
+                DrawRoute(pointsToDraw, canvas);
+
+                canvas.DrawPoint(pointsToDraw[pointsToDraw.Count - 1].GetPointLocation(), redStroke);
+
+                isDrawing = false;
+
+                canvas.Save();
+            }
+        }
+
+        private async Task<List<MapPoint>> StartRouting()
+        {
+            List<MapPoint> routePoints = new List<MapPoint>();
+
+            // TODO: Replace floor point loader to Firebase fetch
+            CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
+            //List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
+
+            // can change to cwRoute start / end later
+            if (currentWing.Equals(destinationWing))
+            {
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-"+currentWing);
+
+                FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+
+                return routePoints;
+            }
+            else if (!currentWing.Equals(destinationWing))
+            {
+
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
+                foreach (var item in cwRoute.floorPoints)
+                {
+                    if(currentWing.Substring(0,1) != destinationWing.Substring(0,1) && currentWing.Contains("2"))
+                    {
+                        destinationLocation = mapPoints[4][0].GetPointName();
+                        Preferences.Set("curLoc", destinationLocation);
+                        break;
+                    }
+                    else if (currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
+                    {
+                        needsAccess = Preferences.Get("accessibility", false);
+                        if(!needsAccess)
+                            destinationLocation = mapPoints[2][0].GetPointName();
+                        else
+                            foreach (var x in mapPoints[2])
+                            {
+                                if (x.getAccess())
+                                {
+                                    destinationLocation = x.GetPointName();
+                                    break;
+                                }
+                            }
+                        
+                        Preferences.Set("curLoc", destinationLocation);
+                        break;
+                    }
+                }
+
+                FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+
+                isRouting = false;
+
+                return routePoints;
+            }
+
+
+            //
+            // I don't really know what you're trying here, let's revert back to it when 
+            // we aren't as time contrained - Jordan.
+            //
+            // TODO: Extract to FloorRoute
+            /*
+            for (int i = 0; i < cwPoints.Count; i++)
+            {
+                FloorPoint cwp = cwPoints[i];
+                Console.WriteLine($"----- [FP] {cwp.getName()}");
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2(cwp.getFBName());
+                // List<MapPoint> traversalPoints = mapPoints[2];
+
+                string src = "",
+                       dst = "";
+
+                if (i > 0)
+                {
+                    FloorPoint cwpPrev = cwPoints[i - 1]; // prev floor
+
+                    if (cwpPrev.wing == cwp.wing)
+                    {
+                        // TODO: Remove hardcoded, find closest stairs from src if it exists
+                        // use `traversalPoints` to search
+                        if (cwp.wing == "E")
+                            src = "stairsTopLeft";
+                        else if (cwp.wing == "G")
+                            src = "stairsBottom";
+                    }
+                    else if (cwp.connectsTo(cwpPrev))
+                        src = $"hall{cwp.wing}{cwpPrev.wing}";
+                }
+                else
+                    src = currentLocation; // starting point
+
+                if (i < cwPoints.Count - 1) // not last
+                {
+                    FloorPoint cwpNext = cwPoints[i + 1]; // next floor
+
+                    // Covers stairs
+                    if (cwp.wing == cwpNext.wing)
+                    {
+                        // TODO: Remove hardcoded, find closest stairs from src if it exists
+                        if (cwp.wing == "E")
+                            dst = "stairsTopLeft";
+                        else if (cwp.wing == "G")
+                            dst = "stairsBottom";
+                    }
+                    // Covers cross-wing
+                    else if (cwp.connectsTo(cwpNext)) // already implies cwp.wing != cwpNext.wing
+                        dst = $"hall{cwp.wing}{cwpNext.wing}";
+                }
+                else
+                    dst = destinationLocation;
+                
+
+                FloorRoute route = new FloorRoute(mapPoints, src, dst);
+                List<MapPoint> floorRoutePoints = route.CalculateRoute();
+                foreach (var frp in floorRoutePoints)
+                {
+                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
+                }
+                routePoints.AddRange(floorRoutePoints);
+            }
+            */
+            return routePoints;
         }
 
         // try to call only when loading new floor
@@ -118,26 +316,10 @@ namespace S_Nav
             }
         }
 
-        public NavigationPageDetail(string file)
-        {
-            InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
-            if (floorFile.Contains("G")){
-                GWingButtonLayout();
-            } else if (floorFile.Contains("E"))
-            {
-                EWingButtonLayout();
-            }
-        }
-
         //GButtons View Function
         private void GWingButtonLayout()
         {
-            WingLeftButton.IsVisible = false;
-            WingUpButton.IsVisible = false;
-            WingRightButton.Text = "E Wing";
-            WingDownButton.IsVisible = false;
+            // These might not actually work
             if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
@@ -151,13 +333,7 @@ namespace S_Nav
         //EButton View Function
         private void EWingButtonLayout()
         {
-            WingLeftButton.IsVisible = true;
-            WingUpButton.IsVisible = true;
-            WingDownButton.IsVisible = false;
-            WingRightButton.Text = "C Wing";
-            WingUpButton.Text = "B Wing";
-            WingLeftButton.Text = "G Wing";
-            
+            // I don't know if these actually work
             if (floorFile.Contains("1"))
             {
                 FloorDownButton.IsVisible = false;
@@ -167,9 +343,9 @@ namespace S_Nav
             {
                 FloorDownButton.IsVisible = true;
                 FloorUpButton.IsVisible = false;
+
             }
         }
-
 
         private void DownClicked(object sender, EventArgs e)
         {
@@ -215,173 +391,39 @@ namespace S_Nav
 
         private async void ShowE1()
         {
-            NavigationPage routePage = new NavigationPage("TRA-E-1.png");
+            Preferences.Set("curWing", "E-1");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowE2()
         {
             FloorUpButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-E-2.png");
+            Preferences.Set("curWing", "E-2");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowG1()
         {
             FloorDownButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-G-1.png");
+            Preferences.Set("curWing", "G-1");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
 
         private async void ShowG2()
         {
             FloorUpButton.IsVisible = false;
-            NavigationPage routePage = new NavigationPage("TRA-G-2.png");
+            Preferences.Set("curWing", "G-2");
+
+            NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
-
-
-
-        private List<MapPoint> CalculateRoute(List<MapPoint> givenPoints)
-        {
-            List<MapPoint> routePoints = new List<MapPoint>
-            {
-                givenPoints.Find(i => i.GetPointName() == currentLocation)
-            };
-            MapPoint endPoint = givenPoints.Find(i => i.GetPointName() == destinationLocation);
-            // since we navigate by hall points, find all of them
-            List<MapPoint> hallPoints = new List<MapPoint>();
-            foreach(MapPoint p in givenPoints)
-            {
-                if (p.GetPointName().Contains("hall"))
-                {
-                    hallPoints.Add(p);
-                }
-            }
-
-            bool findMasterRoom = true;
-
-            if (currentLocation.Length <= 4 || destinationLocation.Length <= 4)
-            {
-                // set the first map point
-                MapPoint firstHallPoint = new MapPoint(new SKPoint(0, 0));
-                firstHallPoint = GetFirstHallPoint(firstHallPoint, routePoints[0].GetPointLocation().X,
-                                 routePoints[0].GetPointLocation().Y, hallPoints);
-
-                routePoints.Add(firstHallPoint);
-                
-                while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
-                {
-                    // handle navigating to rooms which contain multiple subrooms
-                    if (findMasterRoom && endPoint.GetPointName().Length > 4)
-                    {
-                        MapPoint masterRoom = givenPoints.Find(i => i.GetPointName() == endPoint.GetPointName().Substring(0, 4));
-                        while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
-                        {
-                            routePoints.Add(GetNextPoint(routePoints[routePoints.Count - 1], masterRoom, hallPoints));
-                        }
-                        routePoints.Add(masterRoom);
-                    }
-                    else
-                    {
-                        findMasterRoom = false;
-                    }
-                    routePoints.Add(GetNextPoint(routePoints[routePoints.Count - 1], endPoint, hallPoints));
-                }
-            }
-            
-            else
-            {
-                routePoints.Add(givenPoints.Find(i => i.GetPointName() == endPoint.GetPointName().Substring(0, 4)));
-            }
-            routePoints.Add(endPoint);
-            
-            return routePoints;
-        }
-
-        // 
-        // Finds the hall point closest to start point
-        //
-        MapPoint GetFirstHallPoint(MapPoint nextPoint, float startX, float startY, List<MapPoint> hallPoints)
-        {
-            float difX, difY, curX, curY;
-
-            foreach (MapPoint p in hallPoints)
-            {
-                // get difference
-                difX = p.GetPointLocation().X - startX;
-                difY = p.GetPointLocation().Y - startY;
-
-                curX = nextPoint.GetPointLocation().X - startX;
-                curY = nextPoint.GetPointLocation().Y - startY;
-
-                // only want positive values
-                if (difX < 0)
-                    difX *= -1;
-                if (difY < 0)
-                    difY *= -1;
-                if (curX < 0)
-                    curX *= -1;
-                if (curY < 0)
-                    curY *= -1;
-
-                // maybe replace with OR
-                //      might have instance where X is closer, Y is farther
-                if (difX <= curX && difY <= curY)
-                {
-                    nextPoint = p;
-                }
-            }
-            hallPoints.Remove(nextPoint);
-            return nextPoint;
-        }
-
-        // not currently accounting for curved halls
-        MapPoint GetNextPoint(MapPoint currentPoint, MapPoint endPoint, List<MapPoint> hallPoints)
-        {
-            float difX, difY, curX, curY;
-            foreach (MapPoint p in hallPoints)
-            {
-                difX = p.GetPointLocation().X - endPoint.GetPointLocation().X;
-                difY = p.GetPointLocation().Y - endPoint.GetPointLocation().Y;
-
-                curX = currentPoint.GetPointLocation().X - endPoint.GetPointLocation().X;
-                curY = currentPoint.GetPointLocation().Y - endPoint.GetPointLocation().Y;
-
-                // only want positive values
-                if (difX < 0)
-                    difX *= -1;
-                if (difY < 0)
-                    difY *= -1;
-                if (curX < 0)
-                    curX *= -1;
-                if (curY < 0)
-                    curY *= -1;
-
-                if (currentPoint.GetPointLocation().X == p.GetPointLocation().X
-                    || currentPoint.GetPointLocation().Y == p.GetPointLocation().Y)
-                {
-
-                    MapPoint nextPoint;
-                    if (difX < curX || difY < curY)
-                    {
-                        nextPoint = p;
-                        hallPoints.Remove(p);
-                        return nextPoint;
-                    }
-                    else if (difX == curX && difY == curY)
-                    {
-                        nextPoint = p;
-                        hallPoints.Remove(p);
-                        return nextPoint;
-                    }
-                }
-            }
-
-            // failsafe return
-            return currentPoint;
-        }
-
+        
         //
         // Takes a list of points and  draws lines between them
         //
