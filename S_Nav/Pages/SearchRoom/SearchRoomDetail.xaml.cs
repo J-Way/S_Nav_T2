@@ -96,5 +96,23 @@ namespace S_Nav.Pages.NavPage.Searches
             destRoomPicker.Items.Clear();
             PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
         }
+
+        private void AccessibilitySwitch_Toggled(object sender, ToggledEventArgs e)
+        {
+            // accessibility required
+            if (AccessibilitySwitch.IsToggled)
+            {
+                AccessibilityNotif.Text = "TRUE";
+                Preferences.Set("accessibility", true);
+                // set preference?
+            }
+
+            // accessibility not required
+            else
+            {
+                AccessibilityNotif.Text = "FALSE";
+                Preferences.Set("accessibility", false);
+            }
+        }
     }
 }

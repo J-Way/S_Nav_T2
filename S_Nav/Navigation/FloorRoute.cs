@@ -20,8 +20,10 @@ namespace S_Nav.Navigation
 
         public FloorRoute(List<List<MapPoint>> _givenPoints, string curLoc, string destLoc)
         {
+            // why are we declaring these?
             currentLocation = curLoc;
             destinationLocation = destLoc;
+            //
 
             utilityPoints = _givenPoints[0];
             roomPoints = _givenPoints[1];

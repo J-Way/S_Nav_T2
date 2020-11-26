@@ -160,20 +160,28 @@ namespace S_Nav.Firebase
 
                 foreach (var curPoint in item.Object)
                 {
-                    var test = JObject.Parse(curPoint.ToString()).GetEnumerator();
+                    var response = JObject.Parse(curPoint.ToString()).GetEnumerator();
 
+                    bool accessible = false;
                     // This is a horrible implementation and should be replaced
-                    test.MoveNext();
-                    var name = test.Current.Value.ToString();
+                    response.MoveNext();
 
-                    test.MoveNext();
-                    var x = width * float.Parse(test.Current.Value.ToString());
+                    var name = response.Current.Value.ToString();
 
-                    test.MoveNext();
-                    var y = height * float.Parse(test.Current.Value.ToString());
+                    response.MoveNext();
+                    var x = width * float.Parse(response.Current.Value.ToString());
 
-                    //mapPoints.Add(new MapPoint(name, width * x, height * y));
-                    points.Add(new MapPoint(name, x, y));
+                    response.MoveNext();
+                    var y = height * float.Parse(response.Current.Value.ToString());
+
+                    response.MoveNext();
+
+                    if (response.Current.Key.ToString() == "isAccessible")
+                    {
+                        accessible = bool.Parse(response.Current.Value.ToString());
+                    }
+
+                    points.Add(new MapPoint(name, x, y, accessible));
                 }
 
                 mapPoints.Add(points);
