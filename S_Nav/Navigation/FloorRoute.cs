@@ -98,9 +98,9 @@ namespace S_Nav.Navigation
                 endPoint.GetPointName().Substring(0, 4) == routePoints[routePoints.Count - 1].GetPointName())
                 return;
 
-            bool findMasterRoom = roomPoints.Contains(endPoint); // of end point
+            bool findMasterRoom = roomPoints.Contains(endPoint);
+            //    of end point
 
-            // TODO: Stairs
             while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
             {
                 if (findMasterRoom && endPoint.GetPointName().Length > 4)
@@ -158,16 +158,11 @@ namespace S_Nav.Navigation
                 float dif = SKPoint.Distance(p.GetPointLocation(), endPointLoc);
                 float cur = SKPoint.Distance(curPointLoc, endPointLoc);
 
-                // Align check
-                if (Math.Abs(curPointLoc.X - p.GetPointLocation().X) < 1
-                    || Math.Abs(curPointLoc.Y - p.GetPointLocation().Y) < 1)
+                if (dif < cur)
                 {
-                    if (dif <= cur)
-                    {
-                        nextPoint = p;
-                        hallwayPoints.Remove(p);
-                        return nextPoint;
-                    }
+                    nextPoint = p;
+                    hallwayPoints.Remove(p);
+                    return nextPoint;
                 }
 
                 // TODO: else if curved hall check to next hall point
