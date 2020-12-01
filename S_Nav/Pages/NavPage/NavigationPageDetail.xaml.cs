@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -177,7 +177,7 @@ namespace S_Nav
             // can change to cwRoute start / end later
             if (currentWing.Equals(destinationWing))
             {
-                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-"+currentWing);
+                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
 
                 FloorRoute route = new FloorRoute(mapPoints, currentLocation, destinationLocation);
                 List<MapPoint> floorRoutePoints = route.CalculateRoute();
@@ -191,10 +191,10 @@ namespace S_Nav
             }
             else if (!currentWing.Equals(destinationWing))
             {
-
                 List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2("TRA-" + currentWing);
                 foreach (var item in cwRoute.floorPoints)
                 {
+                    // Won't work once wing AA gets routed
                     if(currentWing.Substring(0,1) != destinationWing.Substring(0,1) && currentWing.Contains("2"))
                     {
                         destinationLocation = mapPoints[4][0].GetPointName();
@@ -204,9 +204,10 @@ namespace S_Nav
                     else if (currentWing.Contains(item.wing) && currentWing.Contains(item.floor.ToString()))
                     {
                         needsAccess = Preferences.Get("accessibility", false);
-                        if(!needsAccess)
+                        if (!needsAccess)
                             destinationLocation = mapPoints[2][0].GetPointName();
                         else
+                        {
                             foreach (var x in mapPoints[2])
                             {
                                 if (x.getAccess())
@@ -215,7 +216,8 @@ namespace S_Nav
                                     break;
                                 }
                             }
-                        
+                        }
+
                         Preferences.Set("curLoc", destinationLocation);
                         break;
                     }
@@ -423,7 +425,7 @@ namespace S_Nav
             NavigationPage routePage = new NavigationPage(true);
             await Navigation.PushModalAsync(routePage);
         }
-        
+
         //
         // Takes a list of points and  draws lines between them
         //
