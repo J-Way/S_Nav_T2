@@ -100,45 +100,18 @@ namespace S_Nav.Firebase
         {
             List<FloorPoint> floorPoints = new List<FloorPoint>();
 
-            var floorQuery = firebaseDB.Child("FLOOR_DATA");
-            Func<string, Task<IReadOnlyCollection<FirebaseObject<List<object>>>>> getFloorPoints = async (floor) =>
-            {
-                await Task.Yield(); // let async start at query build instead of query execution
-                var q = floorQuery.Child(floor).Child("FLOOR_POINTS");
-                return await q.OnceAsync<List<object>>();
-            };
+            var floors = await firebaseDB.Child("FLOOR_CONNECTIONS").OnceAsync<List<string>>();
 
-            var floorData = await floorQuery.OrderByKey().OnceAsync<List<Object>>();
-
-            foreach (var item in floorData)
+            foreach (var floor in floors)
             {
                 // Initiate floor
-                FloorPoint fp = new FloorPoint(item.Key.ToString().Substring(4));
+                FloorPoint fp = new FloorPoint(floor.Key.Substring(4));
                 // Substring of 4 to omit TRA-, DAV-, HMC-. No expectation of routing to another campus
 
-                if (floorPoints.Count == 0)
-                {
-                    floorPoints.Add(fp);
-                    continue;
-                }
-
-                // Try to make connections to added points
-                foreach (FloorPoint ofp in floorPoints)
-                {
-                    // Same wing
-                    if (fp.wing == ofp.wing)
-                        fp.addConnections(ofp);
-
-                    // Has wing connector
-                    // TODO: Check if diff wing floors are connected by wing connector
-                    /*var curFloorPoints = await getFloorPoints(fp.getFBName());
-                    var othFloorPoints = await getFloorPoints(ofp.getFBName());
-                    if (curFloorPoints.Count > 4 && othFloorPoints.Count > 4) // both have "WING_CONNECTORS"
-                    {
-                        
-                    }*/
-                }
-
+                // Auto add connections from previously added floor points
+                List<FloorPoint> connectedFloors = floorPoints.FindAll(ofp => floor.Object.Contains(ofp.getFBName()));
+                fp.addConnections(connectedFloors.ToArray());
+                
                 floorPoints.Add(fp);
             }
 

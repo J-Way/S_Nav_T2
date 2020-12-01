@@ -59,11 +59,11 @@ namespace S_Nav.Navigation
         {
             foreach (FloorPoint fp in fps)
             {
-                connections.Add(fp);
+                if (!connectsTo(fp))
+                    connections.Add(fp);
+
                 if (!fp.connectsTo(this))
-                {
                     fp.addConnections(this);
-                }
             }
         }
 
