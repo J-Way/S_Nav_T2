@@ -39,7 +39,8 @@ namespace S_Nav.Navigation
 
         private MapPoint FindPoint (string loc)
         {
-             MapPoint point = roomPoints.Find(i => i.GetPointName() == loc) 
+             MapPoint point = utilityPoints.Find(i => i.GetPointName() == loc) 
+                              ?? roomPoints.Find(i => i.GetPointName() == loc) 
                               ?? traversalPoints.Find(i => i.GetPointName() == loc) 
                               ?? wingConnector.Find(i => i.GetPointName() == loc);
             
