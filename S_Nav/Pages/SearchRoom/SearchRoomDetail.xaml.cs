@@ -73,8 +73,14 @@ namespace S_Nav.Pages.NavPage.Searches
             }
             else
             {
+                // gets changed when switching wing view
                 Preferences.Set("curLoc", curRoomPicker.SelectedItem.ToString());
                 Preferences.Set("curWing", curWingPicker.SelectedItem.ToString());
+                
+                // remains the same, used for routing
+                Preferences.Set("startLoc", curRoomPicker.SelectedItem.ToString());
+                // Preferences.Set("startWing", curWingPicker.SelectedItem.ToString()); // unused
+
                 Preferences.Set("destLoc", destRoomPicker.SelectedItem.ToString());
                 Preferences.Set("destWing", destWingPicker.SelectedItem.ToString());
 

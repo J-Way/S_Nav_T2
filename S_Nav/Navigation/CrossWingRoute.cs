@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Xamarin.Essentials;
 
@@ -15,7 +14,7 @@ namespace S_Nav.Navigation
         {
             floorPoints = _floorPoints;
 
-            string curLoc = Preferences.Get("curLoc", null);
+            string curLoc = Preferences.Get("startLoc", null);
             string destLoc = Preferences.Get("destLoc", null);
 
             startPoint = floorPoints.Find(p =>
