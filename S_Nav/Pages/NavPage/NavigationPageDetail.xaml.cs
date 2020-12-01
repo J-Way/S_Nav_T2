@@ -170,8 +170,8 @@ namespace S_Nav
         {
             List<MapPoint> routePoints = new List<MapPoint>();
 
-            // TODO: Replace floor point loader to Firebase fetch
-            CrossWingRoute cwRoute = new CrossWingRoute(TestLoadFloorPoints.LoadTestFloorPoints());
+            List<FloorPoint> macroMap = await firebaseConnection.GetMacroMap();
+            CrossWingRoute cwRoute = new CrossWingRoute(macroMap);
             //List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
 
             // can change to cwRoute start / end later
