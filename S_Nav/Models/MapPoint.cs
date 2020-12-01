@@ -1,6 +1,4 @@
 ﻿using SkiaSharp;
-using System;
-using System.Numerics;
 
 namespace S_Nav
 {
@@ -8,9 +6,7 @@ namespace S_Nav
     {
         private string point_name { get; set; }
         private string pointDescription { get; set; }
-
         private bool isAccessible { get; set; }
-
         private SKPoint pointLocation { get; set; }
 
         public string GetPointName()
@@ -23,38 +19,47 @@ namespace S_Nav
             this.point_name = name;
         }
 
+        // Unused
+        /*
         public MapPoint(string pName, SKPoint pLocation)
         {
             this.point_name = pName;
             this.pointLocation = pLocation;
         }
+        */
 
         public MapPoint(SKPoint pLocation)
         {
             this.pointLocation = pLocation;
         }
 
-        public MapPoint(string pName, float x, float y)
+        public MapPoint(string pName, float x, float y) 
+            : this(new SKPoint(x, y))
         {
             this.point_name = pName;
-            this.pointLocation = new SKPoint(x, y);
         }
 
-        public MapPoint(string pName, float x, float y, bool accessible)
+        public MapPoint(string pName, float x, float y, bool accessible) 
+            : this(pName, x, y)
         {
-            this.point_name = pName;
-            this.pointLocation = new SKPoint(x, y);
             this.isAccessible = accessible;
         }
 
+        // Unused
+        /*
         public MapPoint(string name)
         {
             this.point_name = name;
         }
+        */
 
+        // Unused
+        /*
         public MapPoint()
         {
         }
+        */
+
 
         public SKPoint GetPointLocation()
         {
