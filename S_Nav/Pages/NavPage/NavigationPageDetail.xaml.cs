@@ -172,7 +172,7 @@ namespace S_Nav
 
             List<FloorPoint> macroMap = await firebaseConnection.GetMacroMap();
             CrossWingRoute cwRoute = new CrossWingRoute(macroMap);
-            //List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
+            List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
 
             // can change to cwRoute start / end later
             if (currentWing.Equals(destinationWing))
