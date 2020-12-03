@@ -12,6 +12,7 @@ using Xamarin.Essentials;
 using System.Threading.Tasks;
 using S_Nav.Firebase;
 using S_Nav.Navigation;
+using S_Nav.Pages.NavPage.Searches;
 
 namespace S_Nav
 {
@@ -105,12 +106,6 @@ namespace S_Nav
                 firebaseConnection = new FirebaseConnection();
             }
         }
-        public NavigationPageDetail(string file)
-        {
-            InitializeComponent();
-            currentLocation = Preferences.Get("curLoc", null);
-            floorFile = file;
-        }
 
         ///     handles / calls all the drawing
         ///     if you need to refresh / reset, call invalidate in
@@ -130,6 +125,7 @@ namespace S_Nav
 
             SetFloorPlan(floorFile);
             canvas.DrawBitmap(image, new SKRect(0, 0, width, height));
+            progressBar.Progress = 0.33f;
 
             if (isRouting)
             {
@@ -141,11 +137,9 @@ namespace S_Nav
 
                     NavigationPage drawPage = new NavigationPage(routePoints);
 
-                    await Navigation.PushModalAsync(drawPage);
+                    progressBar.Progress = 0.99f;
 
-                    //DrawRoute(routePoints, canvas);
-                    //
-                    //canvas.DrawPoint(routePoints[routePoints.Count - 1].GetPointLocation(), redStroke);
+                    await Navigation.PushModalAsync(drawPage);
                 }
             }
             else if (isDrawing)
@@ -167,6 +161,8 @@ namespace S_Nav
             List<FloorPoint> macroMap = await firebaseConnection.GetMacroMap();
             CrossWingRoute cwRoute = new CrossWingRoute(macroMap);
             List<FloorPoint> cwPoints = cwRoute.CalculateRoute();
+
+            progressBar.Progress = 0.66f;
 
             // can change to cwRoute start / end later
             if (currentWing.Equals(destinationWing))
@@ -248,6 +244,9 @@ namespace S_Nav
 
         private void SetButtons(string finalFloorPoint)
         {
+            progressBar.IsVisible = false;
+            lblProcessing.IsVisible = false;
+
             ReturnButton.IsEnabled = true;
             ReturnButton.IsVisible = true;
             if (currentWing.Equals(destinationWing))
@@ -327,6 +326,11 @@ namespace S_Nav
             {
                 ShowE2();
             }
+        }
+
+        private void ReturnButton_Clicked(object sender, EventArgs e)
+        {
+            Navigation.PushModalAsync(new SearchRoom());
         }
 
         private async void ShowE1()

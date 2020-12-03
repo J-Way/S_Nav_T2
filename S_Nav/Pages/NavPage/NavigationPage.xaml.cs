@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using S_Nav.Pages.NavPage.Searches;
+using System.Collections.Generic;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -17,20 +18,12 @@ namespace S_Nav
         {
             InitializeComponent();
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail();
         }
         public NavigationPage(bool isRouting)
         {
             InitializeComponent();
             MasterPage.ListView.ItemSelected += ListView_ItemSelected;
             Detail = new NavigationPageDetail(isRouting);
-        }
-
-        public NavigationPage(string floorFile)
-        {
-            InitializeComponent();
-            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail(floorFile);
         }
 
         public NavigationPage(List<MapPoint> points)
@@ -49,7 +42,8 @@ namespace S_Nav
             {
                 if (item.Id == 0)
                 {
-                    Navigation.PopModalAsync();
+                    //var x = Navigation.ModalStack.GetEnumerator();
+                    Navigation.PushModalAsync(new SearchRoom());
                 }
                 else if(item.Id == 1)
                 {
