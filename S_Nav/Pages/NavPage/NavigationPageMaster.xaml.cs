@@ -28,9 +28,7 @@ namespace S_Nav
             {
                 MenuItems = new ObservableCollection<NavigationPageMasterMenuItem>(new[]
                 {
-                    new NavigationPageMasterMenuItem { Id = 0, Title = "Search Rooms" },
-                    new NavigationPageMasterMenuItem { Id = 1, Title = "Logout" }
-                    //new NavigationPageMasterMenuItem { Id = 2, Title = "Unassigned" }
+                    new NavigationPageMasterMenuItem { Id = 0, Title = "Search Rooms" }
                 });
             }
 

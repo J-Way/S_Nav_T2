@@ -28,8 +28,7 @@ namespace S_Nav.Pages.NavPage.Searches
             {
                 MenuItems = new ObservableCollection<SearchRoomMasterMenuItem>(new[]
                 {
-                    new SearchRoomMasterMenuItem { Id = 0, Title = "View Map" },
-                    new SearchRoomMasterMenuItem { Id = 1, Title = "Logout" }
+                    new SearchRoomMasterMenuItem { Id = 0, Title = "View Map" }
                 });
             }
 

@@ -1,5 +1,4 @@
-﻿using S_Nav.Pages.Login;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace S_Nav
 {
@@ -9,7 +8,7 @@ namespace S_Nav
         {
             InitializeComponent();
 
-            MainPage = new Login();
+            MainPage = new Pages.NavPage.Searches.SearchRoom();
         }
 
         protected override void OnStart()
