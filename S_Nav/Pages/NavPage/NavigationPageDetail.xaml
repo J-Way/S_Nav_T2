@@ -18,44 +18,30 @@
 
         <skia:SKCanvasView x:Name="canvasView"
                        PaintSurface="canvas_PaintSurface"
-                         Grid.Row="1"
-                           Grid.RowSpan="9"
+                         Grid.Row="0"
+                           Grid.RowSpan="10"
                            Grid.Column="0"
                            Grid.ColumnSpan="3"/>
 
-        <Button x:Name="WingRightButton" 
-            Text="E-Wing"
-                VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
-                  Grid.Row="0"
-                   Grid.Column="2"
-                Clicked="WingRightClicked"/>
 
-        <Button x:Name="WingLeftButton" 
-            Text="G-Wing"
-                VerticalOptions="Center"
-                HorizontalOptions="Center"
-                  Grid.Row="0"
-                  Grid.Column="0" 
-                Clicked="WingLeftClicked"/>
-
-
-        <Button x:Name="FloorDownButton"
+        <Button x:Name="TraversalButton"
             Text="Move Down a Floor"
                 VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
+                HorizontalOptions="Start"
                   Grid.Row="11"
                    Grid.Column="0"
-                Clicked="DownClicked"/>
+                IsVisible="false"
+                IsEnabled="False"/>
 
-        <Button x:Name="FloorUpButton"
+        <Button x:Name="ReturnButton"
             Text="Move Up a Floor"
                 VerticalOptions="CenterAndExpand"
-                HorizontalOptions="Center"
+                HorizontalOptions="End" 
                   Grid.Row="11"
                    Grid.Column="1"
                 Grid.ColumnSpan="2"
-                Clicked="UpClicked"/>
+                IsEnabled="False"
+                IsVisible="False"/>
         
        
     </Grid>

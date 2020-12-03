@@ -71,19 +71,21 @@ namespace S_Nav
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
             floorFile = "TRA-E-2.png";
-            EWingButtonLayout();
         }
 
         public NavigationPageDetail(List<MapPoint> p)
         {
             InitializeComponent();
             currentWing = Preferences.Get("curWing", null);
+            destinationWing = Preferences.Get("destWing", null);
 
             isRouting = false;
             isDrawing = true;
             floorFile = $"TRA-{currentWing}.png";
 
             pointsToDraw = p;
+
+            SetButtons(pointsToDraw[pointsToDraw.Count-1].GetPointName());
         }
         
         public NavigationPageDetail(bool routing)
@@ -108,14 +110,6 @@ namespace S_Nav
             InitializeComponent();
             currentLocation = Preferences.Get("curLoc", null);
             floorFile = file;
-            if (floorFile.Contains("G"))
-            {
-                GWingButtonLayout();
-            }
-            else if (floorFile.Contains("E"))
-            {
-                EWingButtonLayout();
-            }
         }
 
         ///     handles / calls all the drawing
@@ -236,72 +230,6 @@ namespace S_Nav
                 return routePoints;
             }
 
-
-            //
-            // I don't really know what you're trying here, let's revert back to it when 
-            // we aren't as time contrained - Jordan.
-            //
-            // TODO: Extract to FloorRoute
-            /*
-            for (int i = 0; i < cwPoints.Count; i++)
-            {
-                FloorPoint cwp = cwPoints[i];
-                Console.WriteLine($"----- [FP] {cwp.getName()}");
-                List<List<MapPoint>> mapPoints = await firebaseConnection.GetFloorPoints2(cwp.getFBName());
-                // List<MapPoint> traversalPoints = mapPoints[2];
-
-                string src = "",
-                       dst = "";
-
-                if (i > 0)
-                {
-                    FloorPoint cwpPrev = cwPoints[i - 1]; // prev floor
-
-                    if (cwpPrev.wing == cwp.wing)
-                    {
-                        // TODO: Remove hardcoded, find closest stairs from src if it exists
-                        // use `traversalPoints` to search
-                        if (cwp.wing == "E")
-                            src = "stairsTopLeft";
-                        else if (cwp.wing == "G")
-                            src = "stairsBottom";
-                    }
-                    else if (cwp.connectsTo(cwpPrev))
-                        src = $"hall{cwp.wing}{cwpPrev.wing}";
-                }
-                else
-                    src = currentLocation; // starting point
-
-                if (i < cwPoints.Count - 1) // not last
-                {
-                    FloorPoint cwpNext = cwPoints[i + 1]; // next floor
-
-                    // Covers stairs
-                    if (cwp.wing == cwpNext.wing)
-                    {
-                        // TODO: Remove hardcoded, find closest stairs from src if it exists
-                        if (cwp.wing == "E")
-                            dst = "stairsTopLeft";
-                        else if (cwp.wing == "G")
-                            dst = "stairsBottom";
-                    }
-                    // Covers cross-wing
-                    else if (cwp.connectsTo(cwpNext)) // already implies cwp.wing != cwpNext.wing
-                        dst = $"hall{cwp.wing}{cwpNext.wing}";
-                }
-                else
-                    dst = destinationLocation;
-                
-
-                FloorRoute route = new FloorRoute(mapPoints, src, dst);
-                List<MapPoint> floorRoutePoints = route.CalculateRoute();
-                foreach (var frp in floorRoutePoints)
-                {
-                    Console.WriteLine($"--- [FRP] {frp.GetPointName()}");
-                }
-                routePoints.AddRange(floorRoutePoints);
-            }
-            */
             return routePoints;
         }
 
@@ -318,40 +246,56 @@ namespace S_Nav
             }
         }
 
-        //GButtons View Function
-        private void GWingButtonLayout()
+        private void SetButtons(string finalFloorPoint)
         {
-            // These might not actually work
-            if (floorFile.Contains("1"))
+            ReturnButton.IsEnabled = true;
+            ReturnButton.IsVisible = true;
+            if (currentWing.Equals(destinationWing))
             {
-                FloorDownButton.IsVisible = false;
-                FloorUpButton.IsVisible = true;
-            } else {
-                FloorDownButton.IsVisible = true;
-                FloorUpButton.IsVisible = false;
-            }
-        }
-
-        //EButton View Function
-        private void EWingButtonLayout()
-        {
-            // I don't know if these actually work
-            if (floorFile.Contains("1"))
-            {
-                FloorDownButton.IsVisible = false;
-                FloorUpButton.IsVisible = true;
+                TraversalButton.IsEnabled = false;
+                TraversalButton.IsVisible = false;
             }
             else
             {
-                FloorDownButton.IsVisible = true;
-                FloorUpButton.IsVisible = false;
-
+                if (finalFloorPoint.Contains("stair"))
+                {
+                    if (currentWing.Contains("1"))
+                    {
+                        TraversalButton.IsVisible = true;
+                        TraversalButton.IsEnabled = true;
+                        TraversalButton.Text = "Move Up a floor";
+                        TraversalButton.Clicked += delegate
+                        {
+                            UpClicked();
+                        };
+                    }
+                    else
+                    {
+                        TraversalButton.IsVisible = true;
+                        TraversalButton.IsEnabled = true;
+                        TraversalButton.Text = "Move Down a floor";
+                        TraversalButton.Clicked += delegate
+                        {
+                            DownClicked();
+                        };
+                    }
+                }
+                // hallway connection
+                else
+                {
+                    TraversalButton.IsVisible = true;
+                    TraversalButton.IsEnabled = true;
+                    TraversalButton.Text = "Move across wings";
+                    TraversalButton.Clicked += delegate
+                    {
+                        WingClicked();
+                    };
+                }
             }
         }
 
-        private void DownClicked(object sender, EventArgs e)
+        private void DownClicked()
         {
-            image.Reset();
             if (floorFile.Contains("G") && !floorFile.Contains("1"))
             {
                 ShowG1();
@@ -362,10 +306,8 @@ namespace S_Nav
             }
         }
 
-        private void UpClicked(object sender, EventArgs e)
+        private void UpClicked()
         {
-            Console.WriteLine("Up Clicked");
-            image.Reset();
             if (floorFile.Contains("G") && floorFile.Contains("1"))
             {
                 ShowG2();
@@ -375,17 +317,13 @@ namespace S_Nav
             }  
         }
 
-        private void WingLeftClicked(object sender, EventArgs e)
+        private void WingClicked()
         {
             if (floorFile.Equals("TRA-E-2.png"))
             {
                 ShowG2();
             }
-        }
-
-        private void WingRightClicked(object sender, EventArgs e)
-        {
-            if (floorFile.Equals("TRA-G-2.png"))
+            else
             {
                 ShowE2();
             }
@@ -401,7 +339,7 @@ namespace S_Nav
 
         private async void ShowE2()
         {
-            FloorUpButton.IsVisible = false;
+            TraversalButton.IsVisible = false;
             Preferences.Set("curWing", "E-2");
 
             NavigationPage routePage = new NavigationPage(true);
@@ -410,7 +348,7 @@ namespace S_Nav
 
         private async void ShowG1()
         {
-            FloorDownButton.IsVisible = false;
+            TraversalButton.IsVisible = false;
             Preferences.Set("curWing", "G-1");
 
             NavigationPage routePage = new NavigationPage(true);
@@ -419,7 +357,7 @@ namespace S_Nav
 
         private async void ShowG2()
         {
-            FloorUpButton.IsVisible = false;
+            TraversalButton.IsVisible = false;
             Preferences.Set("curWing", "G-2");
 
             NavigationPage routePage = new NavigationPage(true);
