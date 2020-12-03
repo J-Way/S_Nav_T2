@@ -24,6 +24,14 @@
                            Grid.ColumnSpan="3"/>
 
 
+        <Label Text="Processing Route ..." Grid.Row="10"
+               Grid.Column="0" Grid.ColumnSpan="3" 
+               HorizontalOptions="CenterAndExpand"
+               x:Name="lblProcessing" TextColor="Black" FontSize="Medium"/>
+        <ProgressBar Progress="0.0"
+                     x:Name="progressBar" Grid.Row="10"
+                     Grid.ColumnSpan="3" Grid.Column="0"/>
+        
         <Button x:Name="TraversalButton"
             Text="Move Down a Floor"
                 VerticalOptions="CenterAndExpand"
@@ -34,14 +42,15 @@
                 IsEnabled="False"/>
 
         <Button x:Name="ReturnButton"
-            Text="Move Up a Floor"
+            Text="New Search"
                 VerticalOptions="CenterAndExpand"
                 HorizontalOptions="End" 
                   Grid.Row="11"
                    Grid.Column="1"
                 Grid.ColumnSpan="2"
                 IsEnabled="False"
-                IsVisible="False"/>
+                IsVisible="False"
+                Clicked="ReturnButton_Clicked"/>
         
        
     </Grid>

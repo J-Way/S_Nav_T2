@@ -26,13 +26,6 @@ namespace S_Nav
             Detail = new NavigationPageDetail(isRouting);
         }
 
-        public NavigationPage(string floorFile)
-        {
-            InitializeComponent();
-            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
-            Detail = new NavigationPageDetail(floorFile);
-        }
-
         public NavigationPage(List<MapPoint> points)
         {
             InitializeComponent();
