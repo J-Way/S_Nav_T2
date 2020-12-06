@@ -72,6 +72,9 @@ namespace S_Nav
             currentLocation = Preferences.Get("curLoc", null);
             destinationLocation = Preferences.Get("destLoc", null);
             floorFile = "TRA-E-2.png";
+
+            progressBar.IsVisible = false;
+            lblProcessing.IsVisible = false;
         }
 
         public NavigationPageDetail(List<MapPoint> p)

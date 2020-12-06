@@ -35,7 +35,7 @@ namespace S_Nav.Firebase
             fileOptions = new FirebaseStorageOptions { AuthTokenAsyncFactory = () => AnonLogin() };
 
             firebaseDB = new FirebaseClient(dbLink, dbOptions);
-            firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
+            //firebaseFiles = new FirebaseStorage(fileLink, fileOptions);
         }
 
         public static void FirebaseSetup()
@@ -83,16 +83,23 @@ namespace S_Nav.Firebase
 
         public async Task<List<Floor>> GetFloors()
         {
-            var items = await firebaseDB.Child("FLOORS").OrderByKey().OnceAsync<object>();
-
-            List<Floor> floors = new List<Floor>();
-
-            foreach (var wing in items)
+            try
             {
-                floors.Add(new Floor(wing.Key.ToString(), JsonConvert.DeserializeObject<string[]>(wing.Object.ToString())));
-            }
+                var items = await firebaseDB.Child("FLOORS").OrderByKey().OnceAsync<object>();
 
-            return floors;
+                List<Floor> floors = new List<Floor>();
+
+                foreach (var wing in items)
+                {
+                    floors.Add(new Floor(wing.Key.ToString(), JsonConvert.DeserializeObject<string[]>(wing.Object.ToString())));
+                }
+
+                return floors;
+            }
+            catch(Exception e)
+            {
+                throw (e);
+            }
         }
 
         // Fetch data to be used for cross-wing. Pending rename
