@@ -28,22 +28,36 @@ namespace S_Nav.Pages.NavPage.Searches
         // this is called before any location data is loaded
         async void PopulateWingPickers()
         {
-            floors = await firebaseConnection.GetFloors();
-
-            foreach (var item in floors)
+            try
             {
-                curWingPicker.Items.Add(item.GetFloorName());
-                destWingPicker.Items.Add(item.GetFloorName());
-            }
-            
-            curWingPicker.SelectedIndex = 0;
-            destWingPicker.SelectedIndex = 0;
-            
-            curWingPicker.IsEnabled = true;
-            destWingPicker.IsEnabled = true;
+                floors = await firebaseConnection.GetFloors();
 
-            PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
-            PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+                if (floors.Count > 0)
+                {
+                    foreach (var item in floors)
+                    {
+                        curWingPicker.Items.Add(item.GetFloorName());
+                        destWingPicker.Items.Add(item.GetFloorName());
+                    }
+
+                    curWingPicker.SelectedIndex = 0;
+                    destWingPicker.SelectedIndex = 0;
+
+                    curWingPicker.IsEnabled = true;
+                    destWingPicker.IsEnabled = true;
+
+                    PopulateRoomPicker(curRoomPicker, curWingPicker.SelectedItem.ToString());
+                    PopulateRoomPicker(destRoomPicker, destWingPicker.SelectedItem.ToString());
+                }
+                else
+                {
+                    lblErrorText.Text = "ERROR No data retrieved, please try again later";
+                }
+            }
+            catch(Exception e)
+            {
+                lblErrorText.Text = "ERROR Pulling data, please try again later";
+            }
         }
 
         void PopulateRoomPicker(Picker picker, string curFloor)

@@ -109,6 +109,8 @@ namespace S_Nav.Navigation
                     MapPoint masterRoom = roomPoints.Find(i =>
                         i.GetPointName() == endPoint.GetPointName().Substring(0, 4));
 
+                    var x = endPoint.GetPointName().Substring(0, 4);
+
                     while (routePoints[routePoints.Count - 2] != routePoints[routePoints.Count - 1])
                     {
                         routePoints.Add(GetNextPoint(
